@@ -114,4 +114,20 @@ npm run check-env
 npm run challenge
 ```
 
+## Team / Regional Note
+
+Hyperspace is built by a distributed team. The project includes STAKR.space as an infrastructure partner.
+
+Andrey Manolov is Co-founder & CTO at Hyperspace.zone. He has Solana/Web3 BD and infrastructure experience from Cambrian.one, where he worked on Solana restaking devtools, GTM, partnerships, pilots, and DevRel.
+
+## Contact
+
+- Website: https://hyperspace.zone
+- Live app: https://80.69.175.159/ (development enfironment made specially for Frontier)
+- Colosseum: https://arena.colosseum.org/projects/explore/hyperspace
+- GitHub: https://github.com/hyperspace-zone/hyperspace-agent-vpn-demo
+- X: https://x.com/yadrena
+- TG contact https://t.me/yadren_a
+- STAKR.space: https://stakr.space
+
 The full paid VPN flow requires a funded Solana wallet and the live staging/demo payment gateway described in the repository README. Do not commit `.env`, wallet files, generated WireGuard configs, or anything under `runtime/`.
