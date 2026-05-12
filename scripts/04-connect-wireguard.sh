@@ -7,7 +7,7 @@ source "${SCRIPT_DIR}/lib/env.sh"
 load_env_file ".env"
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
-: "${WG_CONNECT_CONFIG_PATH:=${WG_CONFIG_PATH%.conf}-connect.conf}"
+: "${WG_CONNECT_CONFIG_PATH:=runtime/hsvgdemo.conf}"
 : "${WG_STRIP_DNS:=true}"
 : "${WG_ALLOWED_IPS_MODE:=diagnostic-target}"
 : "${WG_ALLOWED_IPS:=}"
@@ -94,10 +94,38 @@ has_active_ssh_session() {
   return 1
 }
 
+is_valid_wg_quick_config_path() {
+  local config_path="$1"
+  local base iface
+  base="$(basename "${config_path}")"
+  [[ "${base}" == *.conf ]] || return 1
+  iface="${base%.conf}"
+  [[ "${iface}" =~ ^[A-Za-z0-9_=+.-]{1,15}$ ]]
+}
+
+safe_connect_config_path() {
+  local requested="$1"
+  if is_valid_wg_quick_config_path "${requested}"; then
+    printf '%s\n' "${requested}"
+    return
+  fi
+
+  local dir
+  dir="$(dirname "${WG_CONFIG_PATH}")"
+  if [[ "${dir}" == "." ]]; then
+    printf 'hsvgdemo.conf\n'
+  else
+    printf '%s/hsvgdemo.conf\n' "${dir}"
+  fi
+}
+
 echo "== Connecting WireGuard =="
 echo "config: ${WG_CONFIG_PATH}"
 
-connect_config="${WG_CONNECT_CONFIG_PATH}"
+connect_config="$(safe_connect_config_path "${WG_CONNECT_CONFIG_PATH}")"
+if [[ "${connect_config}" != "${WG_CONNECT_CONFIG_PATH}" ]]; then
+  echo "connect config path adjusted for wg-quick interface-name limit: ${connect_config}"
+fi
 cp "${WG_CONFIG_PATH}" "${connect_config}"
 chmod 600 "${connect_config}"
 

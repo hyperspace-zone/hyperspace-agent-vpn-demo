@@ -110,6 +110,10 @@ route while the diagnostic target is measured through Hyperspace. Full-tunnel
 mode over an active SSH session is refused unless
 `WG_ALLOW_FULL_TUNNEL_ON_SSH=true` is set explicitly.
 
+`WG_CONNECT_CONFIG_PATH` defaults to `runtime/hsvgdemo.conf` because `wg-quick`
+derives the interface name from the config basename, and Linux interface names
+must fit within 15 characters.
+
 The wallet must live outside this repository. Never commit wallet files,
 recovery phrases, WireGuard configs, or raw payment credentials.
 
