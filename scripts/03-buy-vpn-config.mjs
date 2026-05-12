@@ -43,11 +43,14 @@ const prepaid = response.prepaid || response.config?.prepaid || null;
 const wireguardConfig = config.wireguardConfig || config.wireguard_config || config.fileData || config.file_data;
 const configId = config.id || config.config_id || prepaid?.id;
 
+if (response.error || response.message) {
+  throw new Error(`paid response error: ${summarizePaidResponse(response)}`);
+}
 if (!configId) {
-  throw new Error("paid response did not include config id");
+  throw new Error(`paid response did not include config id: ${summarizePaidResponse(response)}`);
 }
 if (!wireguardConfig) {
-  throw new Error("paid response did not include WireGuard config");
+  throw new Error(`paid response did not include WireGuard config: ${summarizePaidResponse(response)}`);
 }
 
 fs.writeFileSync(configPath, wireguardConfig, { mode: 0o600 });
@@ -75,4 +78,18 @@ console.log(redactWireGuardConfig(wireguardConfig).split("\n").slice(0, 12).join
 
 function selectApiBase() {
   return envString("HYPERSPACE_PAY_BASE", "https://80.69.175.159/pay").replace(/\/+$/, "");
+}
+
+function summarizePaidResponse(value) {
+  if (!value || typeof value !== "object") {
+    return "<non-object response>";
+  }
+  const summary = {
+    error: value.error,
+    message: value.message,
+    status: value.status,
+    details: value.details,
+    keys: Object.keys(value).slice(0, 12),
+  };
+  return JSON.stringify(summary);
 }
