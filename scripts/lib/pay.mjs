@@ -6,7 +6,7 @@ export function payCurlJson({ method = "GET", url, body, charge = false }) {
   const payBin = envString("PAY_BIN", "pay");
   const network = envString("PAY_NETWORK", "mainnet");
   const account = envString("PAY_ACCOUNT", "");
-  const yolo = envString("PAY_YOLO_UPTO", "0.10 USDC");
+  const yolo = envString("PAY_YOLO_UPTO", "0.000001 USDC");
 
   const args = [];
   if (network === "mainnet" || network === "mainnet-beta") args.push("--mainnet");

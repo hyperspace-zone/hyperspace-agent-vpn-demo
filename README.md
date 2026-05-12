@@ -59,7 +59,7 @@ and must hold enough USDC for the config plus a little SOL for fees:
 ```bash
 SOLANA_KEYPAIR_PATH=/root/hyperspace/id.json
 PAY_ACCOUNT=hyperspace-agent-demo
-PAY_YOLO_UPTO=0.10 USDC
+PAY_YOLO_UPTO=0.000001 USDC
 ```
 
 Then run the demo step by step:
@@ -89,6 +89,10 @@ the screen stays readable.
 - `sudo` rights for `wg-quick up/down`
 - pay.sh compatible CLI available as `pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
+
+The hackathon demo uses the smallest nonzero USDC amount, `0.000001 USDC`, to
+prove paid access without making every proof-of-concept run expensive. This is
+not production pricing.
 
 The default `WG_STRIP_DNS=true` avoids `wg-quick` failures on minimal Ubuntu
 hosts where `openresolv` is unavailable.

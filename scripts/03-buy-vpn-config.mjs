@@ -31,7 +31,7 @@ console.log("== Issuing prepaid Hyperspace WireGuard config ==");
 console.log(`route: ${body.ingress_gate_id} -> ${body.egress_gate_id}`);
 console.log(`endpoint: ${url}`);
 console.log("authorization: MPP / HTTP 402 payment flow");
-console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.10 USDC")}`);
+console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.000001 USDC")}`);
 
 const response = payCurlJson({ method: "POST", url, body, charge: true });
 const config = response.config || response;
