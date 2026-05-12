@@ -96,6 +96,10 @@ The hackathon demo uses the smallest nonzero USDC amount, `0.000001 USDC`, to
 prove paid access without making every proof-of-concept run expensive. This is
 not production pricing.
 
+Before spending, `npm run buy-vpn` preflights the HTTP 402 challenge and refuses
+to continue if the gateway asks for a different network or any `price_usd` above
+`PAY_YOLO_UPTO`.
+
 The default `WG_STRIP_DNS=true` avoids `wg-quick` failures on minimal Ubuntu
 hosts where `openresolv` is unavailable.
 
@@ -116,6 +120,10 @@ Show the live MPP / HTTP 402 challenge without using the pay CLI:
 ```bash
 npm run challenge
 ```
+
+The raw challenge body is omitted by default so an old or misconfigured gateway
+does not print an unexpectedly high `price_usd` into demo output. Set
+`SHOW_RAW_CHALLENGE_BODY=true` only when debugging gateway configuration.
 
 For the paid demo, the decoded challenge summary must say `network: mainnet`.
 If it says `localnet`, the public staging URL is still pointing at the sandbox

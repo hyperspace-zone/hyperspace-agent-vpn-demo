@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import { loadEnv, envBool, envNumber, envString, ensureRuntimeDir, redactWireGuardConfig } from "./lib/env.mjs";
-import { payCurlJson } from "./lib/pay.mjs";
+import { payCurlJson, preflightPaidChallenge } from "./lib/pay.mjs";
 
 loadEnv();
 ensureRuntimeDir();
@@ -32,6 +32,10 @@ console.log(`route: ${body.ingress_gate_id} -> ${body.egress_gate_id}`);
 console.log(`endpoint: ${url}`);
 console.log("authorization: MPP / HTTP 402 payment flow");
 console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.000001 USDC")}`);
+
+const challenge = preflightPaidChallenge({ method: "POST", url, body });
+console.log(`challenge network: ${challenge.network}`);
+console.log(`challenge max price: ${challenge.maxPriceUsd} USDC`);
 
 const response = payCurlJson({ method: "POST", url, body, charge: true });
 const config = response.config || response;
