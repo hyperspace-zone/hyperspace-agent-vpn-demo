@@ -49,15 +49,20 @@ content.
 
 ## Quick Start
 
-Run the demo from a normal SSH user with `sudo` access, not from a long-lived
-root shell. On a fresh Ubuntu 24.04 server, install the base tools first:
+### 1. Use A Normal SSH User
+
+Run the demo from a normal SSH user with `sudo` access.
+
+### 2. Install Base Packages
+
+On a fresh Ubuntu 24.04 server:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y git curl jq ca-certificates wireguard-tools nodejs npm
 ```
 
-Clone and configure the demo repository:
+### 3. Clone The Demo
 
 ```bash
 mkdir -p "$HOME/hyperspace"
@@ -67,10 +72,13 @@ cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
 
-Install the `pay` CLI locally inside this demo directory:
+### 4. Install pay CLI
+
+Hyperspace uses the [pay.sh](https://pay.sh/) CLI for MPP / HTTP 402 payment
+authorization. Install it locally inside this demo directory:
 
 ```bash
-npm install --no-save --package-lock=false @solana/pay
+npm install @solana/pay
 ./node_modules/.bin/pay --version
 ```
 
@@ -82,7 +90,9 @@ For this demo, do not run GUI/keyring account setup on a headless server; the
 repository script below imports a Solana CLI keypair into the local pay account
 file.
 
-Optional: install the Solana CLI if the server does not already have it:
+### 5. Optional: Install Solana CLI
+
+Install the Solana CLI only if the server does not already have it:
 
 ```bash
 sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
@@ -90,7 +100,9 @@ export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
 solana --version
 ```
 
-Optional: create a dedicated test wallet outside the repository:
+### 6. Optional: Create A Test Wallet
+
+Create a dedicated test wallet outside the repository:
 
 ```bash
 mkdir -p "$HOME/.config/hyperspace"
@@ -110,8 +122,9 @@ OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
 solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
 ```
 
-Optional: install SPL Token CLI if you want an exact USDC balance from the
-server:
+### 7. Optional: Install SPL Token CLI
+
+Install SPL Token CLI only if you want an exact USDC balance from the server:
 
 ```bash
 sudo apt-get install -y build-essential pkg-config libssl-dev libudev-dev
@@ -129,6 +142,8 @@ spl-token balance "$USDC_MINT" \
   --url https://api.mainnet-beta.solana.com
 ```
 
+### 8. Configure `.env`
+
 Edit `.env` and set `SOLANA_KEYPAIR_PATH` to an absolute wallet path outside
 this repository. Keep:
 
@@ -143,7 +158,9 @@ If you created the wallet with the `HYPERSPACE_WALLET` command above:
 sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
-Then run the demo step by step:
+### 9. Run The Demo
+
+Run the demo step by step:
 
 ```bash
 npm run setup-pay-account
@@ -168,7 +185,7 @@ the screen stays readable.
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`
-- pay.sh compatible CLI available as `pay`
+- pay.sh compatible CLI installed locally with `npm install @solana/pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
 - optional Solana CLI for generating and checking the wallet
 - optional SPL Token CLI for exact USDC balance checks
