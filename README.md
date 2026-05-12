@@ -67,15 +67,20 @@ cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
 
-Install or verify the `pay` CLI before running the paid step:
+Install the `pay` CLI locally inside this demo directory:
 
 ```bash
-pay --version
+npm install --no-save --package-lock=false @solana/pay
+./node_modules/.bin/pay --version
 ```
 
-If `pay` is not installed, follow the current pay.sh install guide. For this
-demo, do not run GUI/keyring account setup on a headless server; the repository
-script below imports a Solana CLI keypair into the local pay account file.
+The default `.env.example` uses `PAY_BIN=./node_modules/.bin/pay`, so `pay`
+does not need to be installed globally. If you already have a global `pay`
+binary and prefer to use it, set `PAY_BIN=pay` in `.env`.
+
+For this demo, do not run GUI/keyring account setup on a headless server; the
+repository script below imports a Solana CLI keypair into the local pay account
+file.
 
 Optional: install the Solana CLI if the server does not already have it:
 
