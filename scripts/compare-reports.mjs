@@ -13,13 +13,13 @@ const vpn = readReport(vpnPath);
 console.log("== Hyperspace network comparison ==");
 console.log(`target: ${baseline.target}`);
 console.log();
-console.log("| metric | direct | hyperspace vpn | delta |");
-console.log("| --- | ---: | ---: | ---: |");
-row("median ms", baseline.medianMs, vpn.medianMs);
-row("p95 ms", baseline.p95Ms, vpn.p95Ms);
-row("stddev jitter ms", baseline.jitterStddevMs, vpn.jitterStddevMs);
-row("mean abs delta jitter ms", baseline.jitterMeanAbsDeltaMs, vpn.jitterMeanAbsDeltaMs);
-row("failures", baseline.failures, vpn.failures);
+printTable([
+  metricRow("median ms", baseline.medianMs, vpn.medianMs),
+  metricRow("p95 ms", baseline.p95Ms, vpn.p95Ms),
+  metricRow("stddev jitter ms", baseline.jitterStddevMs, vpn.jitterStddevMs),
+  metricRow("mean abs delta jitter ms", baseline.jitterMeanAbsDeltaMs, vpn.jitterMeanAbsDeltaMs),
+  metricRow("failures", baseline.failures, vpn.failures, { integer: true }),
+]);
 
 console.log();
 console.log("Narrative:");
@@ -34,14 +34,66 @@ function readReport(path) {
   return JSON.parse(fs.readFileSync(path, "utf8"));
 }
 
-function row(label, direct, tunnel) {
+function metricRow(label, direct, tunnel, options = {}) {
   const delta =
     typeof direct === "number" && typeof tunnel === "number"
-      ? Number((tunnel - direct).toFixed(3))
+      ? tunnel - direct
       : "";
-  console.log(`| ${label} | ${format(direct)} | ${format(tunnel)} | ${format(delta)} |`);
+  return {
+    metric: label,
+    direct: formatValue(direct, options),
+    tunnel: formatValue(tunnel, options),
+    delta: formatDelta(delta, options),
+  };
 }
 
-function format(value) {
-  return value === null || value === undefined || value === "" ? "n/a" : String(value);
+function printTable(rows) {
+  const headers = {
+    metric: "metric",
+    direct: "direct",
+    tunnel: "hyperspace vpn",
+    delta: "delta",
+  };
+  const widths = {
+    metric: Math.max(headers.metric.length, ...rows.map((item) => item.metric.length)),
+    direct: Math.max(headers.direct.length, ...rows.map((item) => item.direct.length)),
+    tunnel: Math.max(headers.tunnel.length, ...rows.map((item) => item.tunnel.length)),
+    delta: Math.max(headers.delta.length, ...rows.map((item) => item.delta.length)),
+  };
+
+  console.log(
+    `${headers.metric.padEnd(widths.metric)}  ${headers.direct.padStart(widths.direct)}  ${headers.tunnel.padStart(widths.tunnel)}  ${headers.delta.padStart(widths.delta)}`,
+  );
+  console.log(
+    `${"-".repeat(widths.metric)}  ${"-".repeat(widths.direct)}  ${"-".repeat(widths.tunnel)}  ${"-".repeat(widths.delta)}`,
+  );
+  for (const item of rows) {
+    console.log(
+      `${item.metric.padEnd(widths.metric)}  ${item.direct.padStart(widths.direct)}  ${item.tunnel.padStart(widths.tunnel)}  ${item.delta.padStart(widths.delta)}`,
+    );
+  }
+}
+
+function formatValue(value, { integer = false } = {}) {
+  if (value === null || value === undefined || value === "") {
+    return "n/a";
+  }
+  if (typeof value !== "number") {
+    return String(value);
+  }
+  return integer ? String(value) : value.toFixed(3);
+}
+
+function formatDelta(value, { integer = false } = {}) {
+  if (value === null || value === undefined || value === "") {
+    return "n/a";
+  }
+  if (typeof value !== "number") {
+    return String(value);
+  }
+  if (integer) {
+    return value > 0 ? `+${value}` : String(value);
+  }
+  const formatted = value.toFixed(3);
+  return value > 0 ? `+${formatted}` : formatted;
 }
