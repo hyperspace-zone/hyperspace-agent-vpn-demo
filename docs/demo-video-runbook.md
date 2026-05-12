@@ -105,7 +105,9 @@ npm run vpn-measure
 Explain:
 
 > The agent connects the tunnel and repeats the same jitter measurement over the
-> Hyperspace route.
+> Hyperspace route. For a headless SSH demo host, the script uses the safe
+> diagnostic-target route by default: only the configured timing target is sent
+> through WireGuard, while SSH stays on the original route.
 
 ### 2:20 to 2:45
 

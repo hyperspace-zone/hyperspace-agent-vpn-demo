@@ -103,6 +103,13 @@ to continue if the gateway asks for a different network or any `price_usd` above
 The default `WG_STRIP_DNS=true` avoids `wg-quick` failures on minimal Ubuntu
 hosts where `openresolv` is unavailable.
 
+For remote SSH safety, the demo does not install the issued full-tunnel route by
+default. `WG_ALLOWED_IPS_MODE=diagnostic-target` rewrites `AllowedIPs` to the
+resolved `JITTER_TARGET_HOST` IPv4 `/32`, so SSH stays on the original server
+route while the diagnostic target is measured through Hyperspace. Full-tunnel
+mode over an active SSH session is refused unless
+`WG_ALLOW_FULL_TUNNEL_ON_SSH=true` is set explicitly.
+
 The wallet must live outside this repository. Never commit wallet files,
 recovery phrases, WireGuard configs, or raw payment credentials.
 
