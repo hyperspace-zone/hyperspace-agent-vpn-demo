@@ -5,15 +5,17 @@ the Stavanger (SVG) Hyperspace gate.
 
 Your task:
 
-1. Use the Solana wallet at `$SOLANA_KEYPAIR_PATH`.
-2. Buy a prepaid Hyperspace WireGuard route from Stavanger ingress to London egress.
-3. Connect to the received WireGuard config.
-4. Compare TCP connect latency and jitter before and after the VPN.
-5. Use `data.mft.lseg.com:443` as the safe public LSEG infrastructure target,
+1. Inspect the public Hyperspace staging endpoint and available gates.
+2. Show the live MPP / HTTP 402 payment challenge.
+3. Issue a demo Hyperspace WireGuard route from Stavanger ingress to London
+   egress using the configured direct agent token.
+4. Connect to the received WireGuard config.
+5. Compare TCP connect latency and jitter before and after the VPN.
+6. Use `data.mft.lseg.com:443` as the safe public LSEG infrastructure target,
    unless the user provides a controlled London probe or an authorized exchange
    endpoint.
-6. Disconnect and revoke the session when finished.
-7. Produce a short report with median, p95, stddev jitter, and mean absolute
+7. Disconnect and revoke the session when finished.
+8. Produce a short report with median, p95, stddev jitter, and mean absolute
    delta jitter.
 
 Never print or commit:
@@ -31,8 +33,9 @@ Preferred command sequence:
 
 ```bash
 npm run check-env
+npm run challenge
 npm run baseline
-npm run buy-vpn
+npm run issue-vpn
 sudo npm run connect
 npm run vpn-measure
 npm run compare

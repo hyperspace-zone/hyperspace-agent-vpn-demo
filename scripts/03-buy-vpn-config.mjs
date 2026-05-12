@@ -7,6 +7,7 @@ loadEnv();
 ensureRuntimeDir();
 
 const base = selectApiBase();
+const directMode = Boolean(envString("HYPERSPACE_AGENT_API_TOKEN") && envString("HYPERSPACE_DIRECT_API_BASE"));
 const url = `${base}/v1/agent/wireguard/configs`;
 const sessionPath = envString("SESSION_PATH", "runtime/session.json");
 const configPath = envString("WG_CONFIG_PATH", "runtime/hyperspace-demo.conf");
@@ -27,10 +28,13 @@ if (body.ingress_gate_id === body.egress_gate_id) {
   throw new Error("ingress and egress gates must be different");
 }
 
-console.log("== Buying prepaid Hyperspace WireGuard config ==");
+console.log("== Issuing prepaid Hyperspace WireGuard config ==");
 console.log(`route: ${body.ingress_gate_id} -> ${body.egress_gate_id}`);
-console.log(`pay endpoint: ${url}`);
-console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.000001 USDC")}`);
+console.log(`endpoint: ${url}`);
+console.log(`authorization: ${directMode ? "direct demo agent token" : "MPP / HTTP 402 payment flow"}`);
+if (!directMode) {
+  console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.000001 USDC")}`);
+}
 
 const response = payCurlJson({ method: "POST", url, body, charge: true });
 const config = response.config || response;

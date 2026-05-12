@@ -33,7 +33,7 @@ export function payCurlJson({ method = "GET", url, body, charge = false }) {
 
   if (result.error?.code === "ENOENT") {
     throw new Error(
-      `pay CLI not found: ${payBin}. Install a pay.sh compatible CLI or set HYPERSPACE_AGENT_API_TOKEN for developer-only direct API testing.`,
+      `pay CLI not found: ${payBin}. Install a pay.sh compatible CLI or set HYPERSPACE_AGENT_API_TOKEN for direct demo issuance.`,
     );
   }
   if (result.status !== 0) {

@@ -16,6 +16,7 @@ fi
 echo "== Hyperspace agent demo environment =="
 echo "pay base: ${HYPERSPACE_PAY_BASE}"
 echo "wallet path configured: $([[ -n "${SOLANA_KEYPAIR_PATH}" ]] && echo yes || echo no)"
+echo "direct demo token configured: $([[ -n "${HYPERSPACE_AGENT_API_TOKEN:-}" && -n "${HYPERSPACE_DIRECT_API_BASE:-}" ]] && echo yes || echo no)"
 
 for cmd in node curl bash; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -29,8 +30,10 @@ if ! node -e 'const major=Number(process.versions.node.split(".")[0]); process.e
   exit 1
 fi
 
-if ! command -v "$PAY_BIN" >/dev/null 2>&1; then
-  echo "warning: pay CLI not found as '${PAY_BIN}'. npm run buy-vpn will fail unless HYPERSPACE_AGENT_API_TOKEN is set for developer-only direct API testing." >&2
+if [[ -n "${HYPERSPACE_AGENT_API_TOKEN:-}" && -n "${HYPERSPACE_DIRECT_API_BASE:-}" ]]; then
+  echo "direct demo issuance enabled; pay CLI is not required for npm run issue-vpn"
+elif ! command -v "$PAY_BIN" >/dev/null 2>&1; then
+  echo "warning: pay CLI not found as '${PAY_BIN}'. npm run issue-vpn will fail unless HYPERSPACE_AGENT_API_TOKEN is set for direct demo issuance." >&2
 fi
 
 if [[ -n "${SOLANA_KEYPAIR_PATH}" ]]; then

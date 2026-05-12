@@ -5,8 +5,9 @@ echo "This runs the full demo. For video recording, run each npm command manuall
 echo
 
 npm run check-env
+npm run challenge
 npm run baseline
-npm run buy-vpn
+npm run issue-vpn
 sudo npm run connect
 npm run vpn-measure
 npm run compare
