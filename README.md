@@ -83,7 +83,7 @@ the screen stays readable.
 ## Requirements
 
 - Linux host close to the Stavanger (SVG) ingress gate
-- Node.js 20+
+- Node.js 18+
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`

@@ -27,8 +27,8 @@ for cmd in node curl bash; do
   fi
 done
 
-if ! node -e 'const major=Number(process.versions.node.split(".")[0]); process.exit(major >= 20 ? 0 : 1)' ; then
-  echo "Node.js 20+ is required" >&2
+if ! node -e 'const major=Number(process.versions.node.split(".")[0]); process.exit(major >= 18 ? 0 : 1)' ; then
+  echo "Node.js 18+ is required" >&2
   exit 1
 fi
 

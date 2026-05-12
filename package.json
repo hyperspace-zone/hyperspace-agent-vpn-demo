@@ -19,6 +19,6 @@
     "demo": "bash scripts/run-demo.sh"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   }
 }
