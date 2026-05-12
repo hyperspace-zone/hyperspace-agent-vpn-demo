@@ -49,19 +49,93 @@ content.
 
 ## Quick Start
 
+Run the demo from a normal SSH user with `sudo` access, not from a long-lived
+root shell. On a fresh Ubuntu 24.04 server, install the base tools first:
+
 ```bash
+sudo apt-get update
+sudo apt-get install -y git curl jq ca-certificates wireguard-tools nodejs npm
+```
+
+Clone and configure the demo repository:
+
+```bash
+mkdir -p "$HOME/hyperspace"
+cd "$HOME/hyperspace"
 git clone https://github.com/hyperspace-zone/hyperspace-agent-vpn-demo.git
 cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
 
-Edit `.env` and set the wallet path. The wallet must be outside this repository
-and must hold enough USDC for the config plus a little SOL for fees:
+Install or verify the `pay` CLI before running the paid step:
 
 ```bash
-SOLANA_KEYPAIR_PATH=/root/hyperspace/id.json
+pay --version
+```
+
+If `pay` is not installed, follow the current pay.sh install guide. For this
+demo, do not run GUI/keyring account setup on a headless server; the repository
+script below imports a Solana CLI keypair into the local pay account file.
+
+Optional: install the Solana CLI if the server does not already have it:
+
+```bash
+sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+solana --version
+```
+
+Optional: create a dedicated test wallet outside the repository:
+
+```bash
+mkdir -p "$HOME/.config/hyperspace"
+HYPERSPACE_WALLET="$HOME/.config/hyperspace/id.json"
+solana-keygen new --outfile "$HYPERSPACE_WALLET" --no-bip39-passphrase
+solana-keygen pubkey "$HYPERSPACE_WALLET"
+```
+
+Fund the printed address with a small amount of SOL for network fees and enough
+USDC for the test calls. The demo currently spends the smallest nonzero USDC
+amount, `0.000001 USDC`, per issued config.
+
+To check SOL:
+
+```bash
+OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
+solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
+```
+
+Optional: install SPL Token CLI if you want an exact USDC balance from the
+server:
+
+```bash
+sudo apt-get install -y build-essential pkg-config libssl-dev libudev-dev
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+. "$HOME/.cargo/env"
+cargo install spl-token-cli --locked
+```
+
+Then check mainnet USDC:
+
+```bash
+USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+spl-token balance "$USDC_MINT" \
+  --owner "$OWNER" \
+  --url https://api.mainnet-beta.solana.com
+```
+
+Edit `.env` and set `SOLANA_KEYPAIR_PATH` to an absolute wallet path outside
+this repository. Keep:
+
+```bash
 PAY_ACCOUNT=hyperspace-agent-demo
 PAY_YOLO_UPTO="0.000001 USDC"
+```
+
+If you created the wallet with the `HYPERSPACE_WALLET` command above:
+
+```bash
+sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
 Then run the demo step by step:
@@ -91,6 +165,8 @@ the screen stays readable.
 - `sudo` rights for `wg-quick up/down`
 - pay.sh compatible CLI available as `pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
+- optional Solana CLI for generating and checking the wallet
+- optional SPL Token CLI for exact USDC balance checks
 
 The hackathon demo uses the smallest nonzero USDC amount, `0.000001 USDC`, to
 prove paid access without making every proof-of-concept run expensive. This is
@@ -146,6 +222,9 @@ Configure `pay` for a headless server from the Solana CLI keypair:
 npm run setup-pay-account
 pay --mainnet whoami --account hyperspace-agent-demo
 ```
+
+`pay whoami` may round token display for readability. Use `spl-token balance`
+with the USDC mint shown above when you need the exact token amount.
 
 Run only TCP jitter measurement:
 
