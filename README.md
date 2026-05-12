@@ -49,17 +49,27 @@ content.
 
 ## Quick Start
 
-### 1. Use A Normal SSH User
+These steps were tested on Ubuntu 24.04 LTS.
 
-Run the demo from a normal SSH user with `sudo` access.
-
-### 2. Install Base Packages
+### 1. Install Base Packages
 
 On a fresh Ubuntu 24.04 server:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y git curl jq ca-certificates wireguard-tools nodejs npm
+sudo apt-get install -y git curl jq ca-certificates wireguard-tools
+```
+
+### 2. Install Node.js And npm
+
+Ubuntu 24.04 apt currently ships Node.js 18, while the current `@solana/pay`
+package expects Node.js 20+. Install Node.js 22 from NodeSource:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node --version
+npm --version
 ```
 
 ### 3. Clone The Demo
@@ -181,7 +191,7 @@ the screen stays readable.
 ## Requirements
 
 - Linux host close to the Stavanger (SVG) ingress gate
-- Node.js 18+
+- Node.js 20.18+; Node.js 22 is used in the Ubuntu 24.04 quick start
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`

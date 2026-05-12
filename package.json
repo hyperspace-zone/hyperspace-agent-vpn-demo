@@ -19,7 +19,7 @@
     "demo": "bash scripts/run-demo.sh"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.18"
   },
   "dependencies": {
     "@solana/pay": "^1.0.16"
