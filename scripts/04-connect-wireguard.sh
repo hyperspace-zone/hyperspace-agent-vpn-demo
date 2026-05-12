@@ -12,7 +12,7 @@ fi
 
 if [[ ! -f "${WG_CONFIG_PATH}" ]]; then
   echo "WireGuard config not found: ${WG_CONFIG_PATH}" >&2
-  echo "Run npm run issue-vpn first." >&2
+  echo "Run npm run buy-vpn first." >&2
   exit 1
 fi
 

@@ -18,12 +18,22 @@ Suggested panes:
 
 Show the README and explain:
 
-> This is an agent-facing demo. The agent receives a temporary authorization
-> token, requests a prepaid Hyperspace VPN route, receives a WireGuard config,
-> connects through Stavanger to London, measures jitter, then revokes the
-> session. Hyperspace is
-> designed to become discoverable through pay.sh; today we show the underlying
-> MPP / HTTP 402 payment primitive and a direct demo issuance path.
+> This is an agent-facing demo. The agent receives a repository and a Solana
+> wallet file, requests a prepaid Hyperspace VPN route, receives a WireGuard
+> config, connects through Stavanger to London, measures jitter, then revokes
+> the session. Hyperspace will become discoverable through pay.sh; today we use
+> the underlying MPP / HTTP 402 payment primitive directly.
+
+Run:
+
+```bash
+npm run setup-pay-account
+```
+
+Explain:
+
+> On a headless server the agent imports the existing Solana CLI keypair into
+> the local pay account file. It prints the public key, never the private key.
 
 ### 0:20 to 0:45
 
@@ -49,10 +59,10 @@ npm run challenge
 Explain:
 
 > This is the live paid endpoint. Without credentials it returns HTTP 402 with
-> MPP payment challenges. In production this is what a pay.sh-enabled agent
-> would satisfy with USDC. For the hackathon recording we use a temporary direct
-> agent token to issue the config, because Hyperspace is not yet listed in the
-> pay.sh catalog and production billing is still being finalized.
+> MPP payment challenges. The agent will satisfy that challenge with USDC from
+> the configured wallet. Hyperspace is not in the public pay.sh catalog yet, so
+> the demo calls the gateway URL directly. For the paid recording this summary
+> must say mainnet; localnet means the public proxy is still on sandbox.
 
 ### 1:05 to 1:25
 
@@ -73,15 +83,15 @@ Explain:
 Run:
 
 ```bash
-npm run issue-vpn
+npm run buy-vpn
 ```
 
 Explain:
 
 > The agent now requests a prepaid route from Stavanger ingress to London egress.
-> In this demo mode the same live Hyperspace issuance API returns a standard
-> WireGuard config after direct agent authorization. The private key is saved
-> locally and never printed.
+> The pay CLI handles the MPP / HTTP 402 challenge, pays from the demo wallet,
+> and the live Hyperspace API returns a standard WireGuard config. The private
+> key is saved locally and never printed.
 
 ### 1:50 to 2:20
 

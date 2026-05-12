@@ -35,8 +35,5 @@ console.log("revocation requested");
 console.log(`session metadata updated: ${sessionPath}`);
 
 function selectApiBase() {
-  if (envString("HYPERSPACE_AGENT_API_TOKEN") && envString("HYPERSPACE_DIRECT_API_BASE")) {
-    return envString("HYPERSPACE_DIRECT_API_BASE").replace(/\/+$/, "");
-  }
   return envString("HYPERSPACE_PAY_BASE", "https://80.69.175.159/pay").replace(/\/+$/, "");
 }

@@ -7,7 +7,6 @@ loadEnv();
 ensureRuntimeDir();
 
 const base = selectApiBase();
-const directMode = Boolean(envString("HYPERSPACE_AGENT_API_TOKEN") && envString("HYPERSPACE_DIRECT_API_BASE"));
 const url = `${base}/v1/agent/wireguard/configs`;
 const sessionPath = envString("SESSION_PATH", "runtime/session.json");
 const configPath = envString("WG_CONFIG_PATH", "runtime/hyperspace-demo.conf");
@@ -31,10 +30,8 @@ if (body.ingress_gate_id === body.egress_gate_id) {
 console.log("== Issuing prepaid Hyperspace WireGuard config ==");
 console.log(`route: ${body.ingress_gate_id} -> ${body.egress_gate_id}`);
 console.log(`endpoint: ${url}`);
-console.log(`authorization: ${directMode ? "direct demo agent token" : "MPP / HTTP 402 payment flow"}`);
-if (!directMode) {
-  console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.000001 USDC")}`);
-}
+console.log("authorization: MPP / HTTP 402 payment flow");
+console.log(`budget: ${envString("PAY_YOLO_UPTO", "0.10 USDC")}`);
 
 const response = payCurlJson({ method: "POST", url, body, charge: true });
 const config = response.config || response;
@@ -73,8 +70,5 @@ console.log("redacted config preview:");
 console.log(redactWireGuardConfig(wireguardConfig).split("\n").slice(0, 12).join("\n"));
 
 function selectApiBase() {
-  if (envString("HYPERSPACE_AGENT_API_TOKEN") && envString("HYPERSPACE_DIRECT_API_BASE")) {
-    return envString("HYPERSPACE_DIRECT_API_BASE").replace(/\/+$/, "");
-  }
   return envString("HYPERSPACE_PAY_BASE", "https://80.69.175.159/pay").replace(/\/+$/, "");
 }

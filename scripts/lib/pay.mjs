@@ -3,14 +3,10 @@ import process from "node:process";
 import { envBool, envString } from "./env.mjs";
 
 export function payCurlJson({ method = "GET", url, body, charge = false }) {
-  if (envString("HYPERSPACE_AGENT_API_TOKEN")) {
-    return directApiJson({ method, url, body });
-  }
-
   const payBin = envString("PAY_BIN", "pay");
   const network = envString("PAY_NETWORK", "mainnet");
   const account = envString("PAY_ACCOUNT", "");
-  const yolo = envString("PAY_YOLO_UPTO", "0.000001 USDC");
+  const yolo = envString("PAY_YOLO_UPTO", "0.10 USDC");
 
   const args = [];
   if (network === "mainnet" || network === "mainnet-beta") args.push("--mainnet");
@@ -33,7 +29,7 @@ export function payCurlJson({ method = "GET", url, body, charge = false }) {
 
   if (result.error?.code === "ENOENT") {
     throw new Error(
-      `pay CLI not found: ${payBin}. Install a pay.sh compatible CLI or set HYPERSPACE_AGENT_API_TOKEN for direct demo issuance.`,
+      `pay CLI not found: ${payBin}. Install @solana/pay and run npm run setup-pay-account.`,
     );
   }
   if (result.status !== 0) {
@@ -41,26 +37,6 @@ export function payCurlJson({ method = "GET", url, body, charge = false }) {
     throw new Error(`pay curl failed with exit ${result.status}: ${stderr || "<no stderr>"}`);
   }
 
-  return parseJsonFromStdout(result.stdout);
-}
-
-function directApiJson({ method, url, body }) {
-  const token = envString("HYPERSPACE_AGENT_API_TOKEN");
-  const headers = ["-H", `x-hyperspace-agent-token: ${token}`];
-  if (body !== undefined) headers.push("-H", "content-type: application/json");
-  const args = ["-sS"];
-  if (envBool("HYPERSPACE_API_INSECURE_TLS", false)) args.push("-k");
-  if (method !== "GET") args.push("-X", method);
-  args.push(...headers, url);
-  if (body !== undefined) args.push("-d", JSON.stringify(body));
-
-  const result = spawnSync("curl", args, {
-    encoding: "utf8",
-    maxBuffer: 10 * 1024 * 1024,
-  });
-  if (result.status !== 0) {
-    throw new Error(`direct API curl failed with exit ${result.status}: ${sanitizeOutput(result.stderr)}`);
-  }
   return parseJsonFromStdout(result.stdout);
 }
 

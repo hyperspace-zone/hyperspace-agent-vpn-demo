@@ -7,8 +7,9 @@ Your task:
 
 1. Inspect the public Hyperspace staging endpoint and available gates.
 2. Show the live MPP / HTTP 402 payment challenge.
+   The decoded challenge summary must say `network: mainnet` before spending.
 3. Issue a demo Hyperspace WireGuard route from Stavanger ingress to London
-   egress using the configured direct agent token.
+   egress by paying the MPP / HTTP 402 charge from the configured Solana wallet.
 4. Connect to the received WireGuard config.
 5. Compare TCP connect latency and jitter before and after the VPN.
 6. Use `data.mft.lseg.com:443` as the safe public LSEG infrastructure target,
@@ -32,10 +33,11 @@ Never print or commit:
 Preferred command sequence:
 
 ```bash
+npm run setup-pay-account
 npm run check-env
 npm run challenge
 npm run baseline
-npm run issue-vpn
+npm run buy-vpn
 sudo npm run connect
 npm run vpn-measure
 npm run compare

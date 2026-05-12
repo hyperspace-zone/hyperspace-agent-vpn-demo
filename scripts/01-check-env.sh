@@ -11,12 +11,14 @@ fi
 : "${HYPERSPACE_PAY_BASE:=https://80.69.175.159/pay}"
 : "${HYPERSPACE_API_INSECURE_TLS:=true}"
 : "${PAY_BIN:=pay}"
+: "${PAY_NETWORK:=mainnet}"
+: "${PAY_ACCOUNT:=hyperspace-agent-demo}"
 : "${SOLANA_KEYPAIR_PATH:=}"
 
 echo "== Hyperspace agent demo environment =="
 echo "pay base: ${HYPERSPACE_PAY_BASE}"
+echo "pay account: ${PAY_ACCOUNT}"
 echo "wallet path configured: $([[ -n "${SOLANA_KEYPAIR_PATH}" ]] && echo yes || echo no)"
-echo "direct demo token configured: $([[ -n "${HYPERSPACE_AGENT_API_TOKEN:-}" && -n "${HYPERSPACE_DIRECT_API_BASE:-}" ]] && echo yes || echo no)"
 
 for cmd in node curl bash; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -30,10 +32,18 @@ if ! node -e 'const major=Number(process.versions.node.split(".")[0]); process.e
   exit 1
 fi
 
-if [[ -n "${HYPERSPACE_AGENT_API_TOKEN:-}" && -n "${HYPERSPACE_DIRECT_API_BASE:-}" ]]; then
-  echo "direct demo issuance enabled; pay CLI is not required for npm run issue-vpn"
-elif ! command -v "$PAY_BIN" >/dev/null 2>&1; then
-  echo "warning: pay CLI not found as '${PAY_BIN}'. npm run issue-vpn will fail unless HYPERSPACE_AGENT_API_TOKEN is set for direct demo issuance." >&2
+if ! command -v "$PAY_BIN" >/dev/null 2>&1; then
+  echo "warning: pay CLI not found as '${PAY_BIN}'. Install @solana/pay before npm run buy-vpn." >&2
+else
+  pay_args=()
+  if [[ "${PAY_NETWORK}" == "mainnet" || "${PAY_NETWORK}" == "mainnet-beta" ]]; then
+    pay_args+=(--mainnet)
+  elif [[ "${PAY_NETWORK}" == "sandbox" ]]; then
+    pay_args+=(--sandbox)
+  fi
+  if ! "$PAY_BIN" "${pay_args[@]}" whoami --account "$PAY_ACCOUNT" >/dev/null 2>&1; then
+    echo "warning: pay account '${PAY_ACCOUNT}' is not configured. Run npm run setup-pay-account." >&2
+  fi
 fi
 
 if [[ -n "${SOLANA_KEYPAIR_PATH}" ]]; then

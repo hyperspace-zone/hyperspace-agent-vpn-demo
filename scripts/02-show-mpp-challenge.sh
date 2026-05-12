@@ -52,6 +52,26 @@ grep -i '^www-authenticate: Payment ' "$headers_file" \
   | sed -E 's/(request=")[^"]+/\1<base64-payment-request>/; s/(id=")[^"]+/\1<payment-id>/; s/(expires=")[^"]+/\1<timestamp>/' \
   | head -3 || true
 echo
+node - "$headers_file" <<'NODE'
+const fs = require("node:fs");
+const headerPath = process.argv[2];
+const headers = fs.readFileSync(headerPath, "utf8");
+const header = headers.split(/\r?\n/).find((line) => /^www-authenticate:\s*Payment /i.test(line));
+const match = header && header.match(/request="([^"]+)"/);
+if (!match) process.exit(0);
+try {
+  const request = JSON.parse(Buffer.from(match[1], "base64").toString("utf8"));
+  const network = request.methodDetails?.network || "unknown";
+  console.log("decoded challenge summary:");
+  console.log(`network: ${network}`);
+  if (network !== "mainnet") {
+    console.log("warning: this endpoint is not serving a mainnet payment challenge");
+  }
+  console.log();
+} catch {
+  process.exit(0);
+}
+NODE
 echo "response body:"
 cat "$body_file"
 echo
