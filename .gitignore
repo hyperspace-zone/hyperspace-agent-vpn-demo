@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+runtime/*
+!runtime/.gitkeep
+*.conf
+*.log
+node_modules/
+.DS_Store
+id.json
+recovery_words.txt
+*.key
+*.pem

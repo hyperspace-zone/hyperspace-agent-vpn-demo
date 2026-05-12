@@ -1,0 +1,22 @@
+{
+  "name": "hyperspace-agent-vpn-demo",
+  "version": "0.1.0",
+  "private": false,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "check-env": "bash scripts/01-check-env.sh",
+    "baseline": "node scripts/measure-tcp-jitter.mjs --label baseline --out runtime/baseline.json",
+    "buy-vpn": "node scripts/03-buy-vpn-config.mjs",
+    "connect": "bash scripts/04-connect-wireguard.sh",
+    "vpn-measure": "node scripts/measure-tcp-jitter.mjs --label hyperspace-vpn --out runtime/vpn.json",
+    "compare": "node scripts/compare-reports.mjs",
+    "disconnect": "bash scripts/07-disconnect-wireguard.sh",
+    "revoke": "node scripts/06-revoke-session.mjs",
+    "http-timing": "bash scripts/measure-http-timing.sh",
+    "demo": "bash scripts/run-demo.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
