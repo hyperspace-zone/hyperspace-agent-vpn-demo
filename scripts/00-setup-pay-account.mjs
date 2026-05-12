@@ -26,6 +26,12 @@ const repoRoot = process.cwd();
 if (isInsidePath(absoluteWalletPath, repoRoot)) {
   throw new Error("wallet path is inside this repository; move id.json outside the repo");
 }
+if (!fs.existsSync(absoluteWalletPath)) {
+  throw new Error(
+    `SOLANA_KEYPAIR_PATH does not exist: ${absoluteWalletPath}. ` +
+      "Create a Solana keypair with solana-keygen or point .env to an existing funded id.json.",
+  );
+}
 
 const keypair = readSolanaKeypair(absoluteWalletPath);
 const publicKey = keypair.slice(32, 64);

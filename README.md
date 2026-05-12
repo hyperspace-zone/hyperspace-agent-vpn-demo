@@ -100,9 +100,16 @@ For this demo, do not run GUI/keyring account setup on a headless server; the
 repository script below imports a Solana CLI keypair into the local pay account
 file.
 
-### 5. Optional: Install Solana CLI
+### 5. Prepare A Funded Wallet
 
-Install the Solana CLI only if the server does not already have it:
+Before `npm run setup-pay-account`, you need a Solana keypair JSON file outside
+this repository. It must be funded on mainnet-beta with a small amount of SOL
+for network fees and enough USDC for test calls.
+
+If you already have a funded keypair, copy it to the server and point
+`SOLANA_KEYPAIR_PATH` at that file.
+
+If you need to create a new test wallet on the server, install the Solana CLI:
 
 ```bash
 sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
@@ -110,9 +117,7 @@ export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
 solana --version
 ```
 
-### 6. Optional: Create A Test Wallet
-
-Create a dedicated test wallet outside the repository:
+Then create a dedicated test wallet outside the repository:
 
 ```bash
 mkdir -p "$HOME/.config/hyperspace"
@@ -121,9 +126,9 @@ solana-keygen new --outfile "$HYPERSPACE_WALLET" --no-bip39-passphrase
 solana-keygen pubkey "$HYPERSPACE_WALLET"
 ```
 
-Fund the printed address with a small amount of SOL for network fees and enough
-USDC for the test calls. The demo currently spends the smallest nonzero USDC
-amount, `0.000001 USDC`, per issued config.
+Fund the printed address before continuing. Creating the keypair only creates an
+address; it does not add SOL or USDC. The demo currently spends the smallest
+nonzero USDC amount, `0.000001 USDC`, per issued config.
 
 To check SOL:
 
@@ -132,7 +137,7 @@ OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
 solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
 ```
 
-### 7. Optional: Install SPL Token CLI
+### 6. Optional: Install SPL Token CLI
 
 Install SPL Token CLI only if you want an exact USDC balance from the server:
 
@@ -152,12 +157,12 @@ spl-token balance "$USDC_MINT" \
   --url https://api.mainnet-beta.solana.com
 ```
 
-### 8. Configure `.env`
+### 7. Configure `.env`
 
 Edit `.env` and set `SOLANA_KEYPAIR_PATH` to an absolute wallet path outside
-this repository. Keep:
+this repository. These defaults are already present in `.env`:
 
-```bash
+```text
 PAY_ACCOUNT=hyperspace-agent-demo
 PAY_YOLO_UPTO="0.000001 USDC"
 ```
@@ -168,9 +173,10 @@ If you created the wallet with the `HYPERSPACE_WALLET` command above:
 sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
-### 9. Run The Demo
+### 8. Run The Demo
 
-Run the demo step by step:
+Run the demo step by step. Stop on the first error; the comparison is valid only
+after `npm run buy-vpn` and `sudo npm run connect` both succeed.
 
 ```bash
 npm run setup-pay-account
@@ -252,7 +258,7 @@ Configure `pay` for a headless server from the Solana CLI keypair:
 
 ```bash
 npm run setup-pay-account
-pay --mainnet whoami --account hyperspace-agent-demo
+./node_modules/.bin/pay --mainnet whoami --account hyperspace-agent-demo
 ```
 
 `pay whoami` may round token display for readability. Use `spl-token balance`
