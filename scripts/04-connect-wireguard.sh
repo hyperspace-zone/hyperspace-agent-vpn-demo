@@ -9,6 +9,7 @@ if [[ -f .env ]]; then
 fi
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
+: "${WG_STRIP_DNS:=true}"
 
 if [[ ! -f "${WG_CONFIG_PATH}" ]]; then
   echo "WireGuard config not found: ${WG_CONFIG_PATH}" >&2
@@ -23,7 +24,16 @@ fi
 
 echo "== Connecting WireGuard =="
 echo "config: ${WG_CONFIG_PATH}"
-wg-quick up "${WG_CONFIG_PATH}"
+
+connect_config="${WG_CONFIG_PATH}"
+if [[ "${WG_STRIP_DNS}" == "true" ]]; then
+  connect_config="${WG_CONFIG_PATH%.conf}-nodns.conf"
+  grep -viE '^[[:space:]]*DNS[[:space:]]*=' "${WG_CONFIG_PATH}" > "${connect_config}"
+  chmod 600 "${connect_config}"
+  echo "dns handling: stripped DNS lines for headless Ubuntu compatibility"
+fi
+
+wg-quick up "${connect_config}"
 
 echo
 echo "== Active WireGuard interfaces =="

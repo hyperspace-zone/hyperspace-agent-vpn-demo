@@ -9,6 +9,7 @@ if [[ -f .env ]]; then
 fi
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
+: "${WG_STRIP_DNS:=true}"
 
 if [[ ! -f "${WG_CONFIG_PATH}" ]]; then
   echo "WireGuard config not found: ${WG_CONFIG_PATH}" >&2
@@ -16,4 +17,9 @@ if [[ ! -f "${WG_CONFIG_PATH}" ]]; then
 fi
 
 echo "== Disconnecting WireGuard =="
-wg-quick down "${WG_CONFIG_PATH}" || true
+disconnect_config="${WG_CONFIG_PATH}"
+if [[ "${WG_STRIP_DNS}" == "true" ]]; then
+  disconnect_config="${WG_CONFIG_PATH%.conf}-nodns.conf"
+fi
+
+wg-quick down "${disconnect_config}" || wg-quick down "${WG_CONFIG_PATH}" || true

@@ -90,6 +90,9 @@ the screen stays readable.
 - pay.sh compatible CLI available as `pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
 
+The default `WG_STRIP_DNS=true` avoids `wg-quick` failures on minimal Ubuntu
+hosts where `openresolv` is unavailable.
+
 The wallet must live outside this repository. Never commit wallet files,
 recovery phrases, WireGuard configs, or raw payment credentials.
 
