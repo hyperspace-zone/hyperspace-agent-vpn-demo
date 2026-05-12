@@ -42,6 +42,11 @@ looking-glass host suitable for basic network timing checks.
 For clean network jitter measurement, set `JITTER_TARGET_HOST` to a controlled
 probe if you have one.
 
+`HTTP_TIMING_INSECURE_TLS=true` is enabled by default for timing-only requests
+against looking-glass targets that may not provide a complete public certificate
+chain. The scripts measure network timing; they do not trust or parse response
+content.
+
 ## Quick Start
 
 ```bash
@@ -56,7 +61,7 @@ and must hold enough USDC for the config plus a little SOL for fees:
 ```bash
 SOLANA_KEYPAIR_PATH=/root/hyperspace/id.json
 PAY_ACCOUNT=hyperspace-agent-demo
-PAY_YOLO_UPTO=0.000001 USDC
+PAY_YOLO_UPTO="0.000001 USDC"
 ```
 
 Then run the demo step by step:

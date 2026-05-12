@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -f .env ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source .env
-  set +a
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/env.sh
+source "${SCRIPT_DIR}/lib/env.sh"
+load_env_file ".env"
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
 : "${WG_STRIP_DNS:=true}"
