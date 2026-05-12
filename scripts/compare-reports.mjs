@@ -24,7 +24,7 @@ row("failures", baseline.failures, vpn.failures);
 console.log();
 console.log("Narrative:");
 console.log(
-  "Lower p95 and lower jitter indicate a tighter, more predictable path. For public exchange-adjacent demos, this script measures TCP connect jitter because financial infrastructure often blocks ICMP.",
+  "Lower p95 and lower jitter indicate a tighter, more predictable path. This script uses repeatable TCP connect timing against the configured diagnostic target.",
 );
 
 function readReport(path) {

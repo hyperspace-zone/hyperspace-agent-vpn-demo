@@ -36,14 +36,11 @@ Stavanger ingress: gate-eu-svg-01 / 212.147.234.64
 London egress:     gate-eu-lon-01 / 94.237.56.185
 ```
 
-The default public financial-infrastructure target is `data.mft.lseg.com:443`.
-This is an official LSEG managed-file-transfer infrastructure endpoint, not a
-trading/order-entry API. It is useful for safe TCP timing in a public demo
-because public exchange endpoints often block ICMP.
+The default public diagnostic target is `lg01-ld4.primexm.com:443`, a public
+looking-glass host suitable for basic network timing checks.
 
 For clean network jitter measurement, set `JITTER_TARGET_HOST` to a controlled
-London probe if you have one. For public demo recordings, use TCP connect jitter
-instead of ICMP ping.
+probe if you have one.
 
 ## Quick Start
 
@@ -131,7 +128,7 @@ Run only TCP jitter measurement:
 ```bash
 node scripts/measure-tcp-jitter.mjs \
   --label baseline \
-  --host data.mft.lseg.com \
+  --host lg01-ld4.primexm.com \
   --port 443 \
   --samples 30 \
   --out runtime/baseline.json

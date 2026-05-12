@@ -75,8 +75,8 @@ npm run baseline
 Explain:
 
 > Before buying connectivity, the agent measures direct TCP connect latency and
-> jitter to an LSEG infrastructure endpoint. We use TCP connect timing because
-> financial infrastructure often blocks ICMP ping.
+> jitter to a public looking-glass target. This keeps the demo focused on
+> network behavior without probing sensitive production endpoints.
 
 ### 1:25 to 1:50
 

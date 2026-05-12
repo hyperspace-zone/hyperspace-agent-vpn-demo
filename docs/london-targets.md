@@ -1,34 +1,31 @@
 # London Demo Targets
 
-## Safe Public Default
+## Public Looking-Glass Default
 
 ```text
-data.mft.lseg.com:443
+lg01-ld4.primexm.com:443
 ```
 
-This host resolves to LSEG managed-file-transfer infrastructure. It is not a
-trading/order-entry API. It is useful for safe public TCP timing because it is
-exchange-adjacent infrastructure and does not require credentials for a TCP/TLS
-connect attempt.
-
-ICMP ping may be blocked. That is expected.
+This host is used as a public diagnostic target for basic network timing checks.
+It is appropriate for ping, traceroute, MTR, TCP connect timing, and HTTP/TLS
+timing during the demo.
 
 ## Preferred Jitter Target
 
-For clean network jitter measurement, use a controlled London probe:
+For clean network jitter measurement, use a controlled London probe when one is
+available:
 
 ```bash
 JITTER_TARGET_HOST=<controlled-london-probe-hostname-or-ip>
 JITTER_TARGET_PORT=443
+HTTP_TIMING_URL=https://<controlled-london-probe-hostname-or-ip>/
 ```
 
-This avoids measuring application behavior from a third-party service.
+This avoids measuring application behavior from an unrelated third-party
+service.
 
-## Authorized Exchange Connectivity
+## Safety Rule
 
-Real LSE trading connectivity uses FIX, native trading, market data, drop copy,
-or other venue-specific gateways. Those endpoints can require contracts,
-certification, source-IP allowlisting, and explicit permission.
-
-Do not put production trading gateway IPs into this public demo unless the user
-confirms they are authorized to test them.
+Do not probe third-party production systems unless they explicitly permit
+diagnostics from your source host. Prefer public looking-glass services or
+targets you control.

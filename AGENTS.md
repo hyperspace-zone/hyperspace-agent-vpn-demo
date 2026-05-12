@@ -1,7 +1,7 @@
 # Agent Instructions
 
-You are an autonomous trading-network agent running on a Linux server close to
-the Stavanger (SVG) Hyperspace gate.
+You are an autonomous network agent running on a Linux server close to the
+Stavanger (SVG) Hyperspace gate.
 
 Your task:
 
@@ -12,9 +12,8 @@ Your task:
    egress by paying the MPP / HTTP 402 charge from the configured Solana wallet.
 4. Connect to the received WireGuard config.
 5. Compare TCP connect latency and jitter before and after the VPN.
-6. Use `data.mft.lseg.com:443` as the safe public LSEG infrastructure target,
-   unless the user provides a controlled London probe or an authorized exchange
-   endpoint.
+6. Use `lg01-ld4.primexm.com:443` as the public looking-glass target, unless
+   the user provides a controlled probe endpoint.
 7. Disconnect and revoke the session when finished.
 8. Produce a short report with median, p95, stddev jitter, and mean absolute
    delta jitter.

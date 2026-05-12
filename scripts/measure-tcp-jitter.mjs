@@ -9,7 +9,7 @@ ensureRuntimeDir();
 
 const args = parseArgs(process.argv.slice(2));
 const label = args.label || "measurement";
-const host = args.host || envString("JITTER_TARGET_HOST", "data.mft.lseg.com");
+const host = args.host || envString("JITTER_TARGET_HOST", "lg01-ld4.primexm.com");
 const port = Number(args.port || envString("JITTER_TARGET_PORT", "443"));
 const samples = Number(args.samples || envNumber("JITTER_SAMPLES", 30));
 const timeoutMs = Number(args.timeoutMs || envNumber("JITTER_TIMEOUT_MS", 3000));
