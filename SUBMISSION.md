@@ -114,11 +114,13 @@ npm run check-env
 npm run challenge
 ```
 
-## Team / Regional Note
+## Team
 
-Hyperspace is built by a distributed team. The project includes STAKR.space as an infrastructure partner.
-
+Hyperspace is built by a distributed team. 
 Andrey Manolov is Co-founder & CTO at Hyperspace.zone. He has Solana/Web3 BD and infrastructure experience from Cambrian.one, where he worked on Solana restaking devtools, GTM, partnerships, pilots, and DevRel.
+
+The project includes STAKR.space as an infrastructure partner.
+
 
 ## Contact
 
