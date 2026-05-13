@@ -11,18 +11,21 @@ Text in gray blocks is not meant to be read aloud. It is a screen/action cue.
 ```text
 Show: open https://hyperspace.zone/.
 Hold on the hero text and the "Download Client" button for a few seconds.
+If you have a separate architecture slide, briefly point to DoubleZero as the
+network layer behind the stabilized route.
 ```
 
 This is Hyperspace: a low-latency network access layer delivered through a
-client VPN.
+client VPN. A key part of this stack is DoubleZero, which gives Hyperspace a
+more controlled network path than the public internet alone.
 
 The core idea is that real-time applications, and increasingly AI agents, need
 more than generic internet access. They need predictable routes, stable
 latency, and a way to acquire network access programmatically.
 
 In this demo, I will show a concrete agent workflow: buy a short-lived
-IP-to-IP VPN session, connect it on a server, measure the network path, and
-then revoke the session.
+IP-to-IP VPN session, connect it on a server, route traffic through DoubleZero,
+measure the network path, and then revoke the session.
 
 **0:25 - What The Agent Is Buying**
 
@@ -43,7 +46,7 @@ is `185.97.160.8:443`, and the issued `AllowedIPs` value is exactly
 `185.97.160.8/32`.
 
 So this is not a broad full-tunnel VPN. It is paid network access for one
-specific route.
+specific route, backed by a DoubleZero path for more stable latency behavior.
 
 **0:55 - Setup**
 
@@ -126,7 +129,7 @@ The challenge says `network: mainnet` and `price: 0.000001 USDC`. The purchase
 script also enforces the local spending limit before it will pay.
 
 Now I run the baseline measurement: 30 TCP connect attempts directly to the
-target, without Hyperspace.
+target, without Hyperspace and without the DoubleZero route.
 
 ```text
 Show: baseline measurement.
@@ -163,7 +166,8 @@ this server to the target. The connect script uses the issued config directly,
 without rewriting DNS or routes.
 
 WireGuard creates the `hyperspace-demo` interface and adds a route only for
-`185.97.160.8/32`.
+`185.97.160.8/32`. That target-scoped route is the path that now goes through
+Hyperspace and DoubleZero.
 
 ```text
 Show: WireGuard connect.
@@ -175,7 +179,8 @@ WireGuard interface summary.
 sudo bash scripts/04-connect-wireguard.sh
 ```
 
-Now I repeat the same 30 TCP connect measurements through the Hyperspace VPN.
+Now I repeat the same 30 TCP connect measurements through the Hyperspace VPN,
+using the DoubleZero-backed route.
 
 ```text
 Show: VPN measurement.
@@ -190,8 +195,9 @@ The VPN path has a median around 32.9 milliseconds, so the median is about
 3 milliseconds higher. But the important result is the tail: p95 drops to about
 33.6 milliseconds, and jitter drops to about 0.3 milliseconds.
 
-For real-time systems, that predictability is often more important than the
-lowest possible median.
+This is the DoubleZero effect I want to highlight: the route's jitter profile
+becomes much more stable. For real-time systems, that predictability is often
+more important than the lowest possible median.
 
 **2:35 - Cleanup And Takeaway**
 
@@ -220,7 +226,8 @@ The session is prepaid, short-lived, and task-scoped. The run also keeps
 timestamped reports and the issued config metadata for auditability.
 
 This is the Hyperspace model in one flow: discover the route, receive a
-payment challenge, pay, connect, measure, and revoke.
+payment challenge, pay, connect through a DoubleZero-backed path, measure, and
+revoke.
 
 It turns network access into something an agent can request and verify as part
 of its own workflow.
