@@ -324,7 +324,7 @@ AGENTS.md                     Agent instructions
 README.solana-cli.md          Alternative quick start with Solana CLI checks
 scripts/                      Demo automation scripts
 docs/security.md              Secret-handling rules
-docs/voiceover-ru.md          Russian voiceover script for the demo flow
+docs/voiceover.md             English voiceover script for the demo flow
 runtime/                      Local generated files, ignored by git
 ```
 
