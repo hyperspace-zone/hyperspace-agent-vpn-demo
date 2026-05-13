@@ -1,4 +1,4 @@
-# Hyperspace IP-to-IP VPN for Agents Demo
+# Hyperspace IP-to-IP VPN for Agents Demo With Solana CLI
 
 This repository is a live-product demo for an autonomous agent that requests a
 prepaid Hyperspace IP-to-IP VPN route, connects through a Stavanger ingress
@@ -55,10 +55,9 @@ content.
 
 These steps were tested on Ubuntu 24.04 LTS.
 
-This default README does not require Solana CLI, `solana-keygen`, or
-`spl-token`. Wallet address and balances are checked by a local Node.js script
-that reads `id.json` and queries Solana mainnet-beta JSON-RPC. If you prefer
-explicit CLI checks, use [README.solana-cli.md](README.solana-cli.md).
+This alternative README uses the Solana CLI tool suite for explicit wallet
+checks. The default [README.md](README.md) runs the same demo without installing
+`solana`, `solana-keygen`, or `spl-token`.
 
 Before starting, prepare a Solana mainnet-beta keypair JSON file (`id.json`).
 The wallet must already contain:
@@ -75,15 +74,21 @@ It does not have to be assigned directly to the server as a public interface
 address; a stable NAT gateway egress address is fine. It must not change during
 the test, because the IP-to-IP VPN config is issued for that source address.
 
-### 1. Install Base Packages And Node.js
+### 1. Install Base Packages
+
+On a fresh Ubuntu 24.04 server:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git curl jq ca-certificates wireguard-tools
+```
+
+### 2. Install Node.js And npm
 
 Ubuntu 24.04 apt currently ships Node.js 18, while the current `@solana/pay`
 package expects Node.js 20+. Install Node.js 22 from NodeSource:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y git curl jq ca-certificates wireguard-tools
-
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 node --version
@@ -94,7 +99,31 @@ If npm prints a notice about a newer major version, ignore it for this demo.
 NodeSource's bundled npm is sufficient. Do not run `npm install -g npm@...`
 as part of the quick start.
 
-### 2. Clone The Demo
+### 3. Install Solana CLI Tool Suite
+
+Install the Solana CLI tool suite with the
+[official Anza installer](https://solana.com/docs/intro/installation/dependencies):
+
+```bash
+sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+solana --version
+solana-keygen --version
+spl-token --version
+```
+
+The quick start requires `solana-keygen` to print the wallet address, `solana`
+to check SOL for fees, and `spl-token` to check the USDC balance. The Anza
+installer used above includes `spl-token`; no separate SPL Token CLI install
+step is required.
+
+Set the CLI to mainnet-beta for manual checks:
+
+```bash
+solana config set --url mainnet-beta
+```
+
+### 4. Clone The Demo
 
 ```bash
 mkdir -p "$HOME/hyperspace"
@@ -103,54 +132,6 @@ git clone https://github.com/hyperspace-zone/hyperspace-agent-vpn-demo.git
 cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
-
-### 3. Copy A Funded Wallet
-
-Copy your already-funded Solana mainnet-beta `id.json` to the server.
-
-On the server:
-
-```bash
-mkdir -p "$HOME/.config/hyperspace"
-```
-
-From your workstation:
-
-```bash
-scp /path/to/id.json <server-user>@<server-ip>:~/.config/hyperspace/id.json
-```
-
-Back on the server:
-
-```bash
-HYPERSPACE_WALLET="$HOME/.config/hyperspace/id.json"
-chmod 600 "$HYPERSPACE_WALLET"
-sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
-```
-
-### 4. Verify Wallet Address And Balances
-
-This step does not use Solana CLI or SPL Token CLI. It derives the public key
-from `id.json`, prints a Solscan link, then checks SOL and USDC through Solana
-JSON-RPC.
-
-```bash
-npm run wallet-info
-```
-
-Expected output shape:
-
-```text
-== Wallet balances ==
-wallet: <wallet-address>
-solscan: https://solscan.io/account/<wallet-address>
-SOL: <amount> SOL (<lamports> lamports)
-USDC: <amount> USDC
-```
-
-Continue only if the wallet has at least `0.00001 SOL` and more than
-`0.000001 USDC`. `npm run check-env` repeats these checks before the paid
-command sequence continues.
 
 ### 5. Install pay CLI
 
@@ -170,7 +151,55 @@ For this demo, do not run GUI/keyring account setup on a headless server; the
 repository script below imports a Solana keypair JSON into the local pay account
 file.
 
-### 6. Configure `.env`
+### 6. Copy A Funded Wallet
+
+Copy your already-funded Solana mainnet-beta `id.json` to the server.
+
+On the server:
+
+```bash
+mkdir -p "$HOME/.config/hyperspace"
+```
+
+From your workstation, copy the keypair file to the server:
+
+```bash
+scp /path/to/id.json <server-user>@<server-ip>:~/.config/hyperspace/id.json
+```
+
+Back on the server:
+
+```bash
+HYPERSPACE_WALLET="$HOME/.config/hyperspace/id.json"
+chmod 600 "$HYPERSPACE_WALLET"
+sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
+```
+
+### 7. Verify Wallet Address And Balances
+
+Print the wallet address, a Solscan link, SOL for fees, and USDC for the paid
+request:
+
+```bash
+OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
+echo "wallet:  $OWNER"
+echo "solscan: https://solscan.io/account/$OWNER"
+
+solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
+
+USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+spl-token balance "$USDC_MINT" \
+  --owner "$OWNER" \
+  --url https://api.mainnet-beta.solana.com
+```
+
+Continue only if the wallet has at least `0.00001 SOL` and more than
+`0.000001 USDC`. If the USDC command prints `0` or fails because the associated
+token account does not exist, fund the wallet with mainnet USDC before running
+the paid step. `npm run check-env` repeats these checks before the paid command
+sequence continues.
+
+### 8. Configure `.env`
 
 Set the source and target IPs. The source IP must be this server's stable
 internet egress address; the target IP is the destination allowed by the paid
@@ -207,7 +236,7 @@ JITTER_TARGET_HOST=185.97.160.8
 At `npm run buy-vpn`, the paid WireGuard config will be issued for
 `HYPERSPACE_SOURCE_IP -> HYPERSPACE_TARGET_IP` only.
 
-### 7. Run The Demo
+### 9. Run The Demo
 
 Run the demo step by step. Stop on the first error; the comparison is valid only
 after `npm run buy-vpn` and `sudo bash scripts/04-connect-wireguard.sh` both
@@ -230,9 +259,10 @@ npm run revoke
 
 - Linux host close to the Stavanger (SVG) ingress gate
 - Node.js 20.18+; Node.js 22 is used in the Ubuntu 24.04 quick start
-- `curl` and `jq`
+- `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`
+- Solana CLI tool suite: `solana`, `solana-keygen`, `spl-token`
 - pay.sh compatible CLI installed locally with `npm install @solana/pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
 - a server with a stable internet egress IPv4 address for `HYPERSPACE_SOURCE_IP`
@@ -292,8 +322,10 @@ npm run setup-pay-account
 ./node_modules/.bin/pay --mainnet whoami --account hyperspace-agent-demo
 ```
 
-`pay whoami` may round token display for readability. Use `npm run wallet-info`
-when you need the exact token amount from Solana JSON-RPC:
+`pay whoami` may round token display for readability. Use `spl-token balance`
+from the wallet verification step when you need the exact token amount.
+You can also print the same wallet address, Solscan link, SOL balance, and USDC
+balance without Solana CLI tools:
 
 ```bash
 npm run wallet-info
@@ -316,12 +348,43 @@ Show a report after both measurements:
 npm run compare
 ```
 
+## Create A New Test Wallet
+
+If you do not already have a dedicated funded `id.json`, create one outside the
+repository and fund the printed address before continuing. Creating the keypair
+only creates an address; it does not add SOL or USDC.
+
+```bash
+mkdir -p "$HOME/.config/hyperspace"
+HYPERSPACE_WALLET="$HOME/.config/hyperspace/id.json"
+solana-keygen new --outfile "$HYPERSPACE_WALLET" --no-bip39-passphrase
+solana-keygen pubkey "$HYPERSPACE_WALLET"
+chmod 600 "$HYPERSPACE_WALLET"
+sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
+```
+
+Check SOL:
+
+```bash
+OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
+solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
+```
+
+Check mainnet USDC:
+
+```bash
+USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+spl-token balance "$USDC_MINT" \
+  --owner "$OWNER" \
+  --url https://api.mainnet-beta.solana.com
+```
+
 ## Repository Layout
 
 ```text
 AGENTS.md                     Agent instructions
 .env.example                  Safe environment template
-README.solana-cli.md          Alternative quick start with Solana CLI checks
+README.md                     Default quick start without Solana CLI
 scripts/                      Demo automation scripts
 docs/security.md              Secret-handling rules
 docs/voiceover-ru.md          Russian voiceover script for the demo flow
