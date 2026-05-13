@@ -22,8 +22,6 @@ The PPTX in this repository is ordered to match this script:
 
 ## Script
 
-**0:00 - Title**
-
 ```text
 0:00 Start on slide 1 with title "Hyperspace".
 Hold on "Pay-as-you-go VPN paths for AI agents".
@@ -33,8 +31,6 @@ Hyperspace turns Solana payments into machine-native network access.
 
 An agent can pay for a prepaid IP-to-IP VPN route, receive a WireGuard config,
 use a DoubleZero-backed path, and revoke access programmatically.
-
-**0:14 - Market And Timing**
 
 ```text
 0:14 Switch to slide 2 with title "Current market".
@@ -54,8 +50,6 @@ The users are hosted agent platforms, crawlers, automation tools, RPC workloads,
 and indexers. They need isolated egress, stable latency, caps, top-ups, and
 revocation.
 
-**0:36 - Problem**
-
 ```text
 0:36 Switch to slide 4 with title "Problem".
 Emphasize the contrast between agents and human VPN signup.
@@ -67,8 +61,6 @@ routes do not fit agent workflows.
 
 Agents can pay for APIs, but still cannot reliably buy the network path needed
 to use them.
-
-**0:52 - Solution**
 
 ```text
 0:52 Switch to slide 5 with title "Solution".
@@ -90,8 +82,6 @@ Under the hood, the flow connects a pay.sh-compatible gateway, Solana SPL USDC,
 the Hyperspace control plane, gate agents, WireGuard, and DoubleZero-optimized
 paths.
 
-**1:18 - Differentiation And Stage**
-
 ```text
 1:18 Switch to slide 7 with title "Competitors".
 Keep this slide on screen for the competitor comparison.
@@ -112,16 +102,14 @@ Keep this slide on screen for current stage.
 We already have the web UI, customer API, control plane, gate agents, European
 staging gates, config issue and revoke, and a mainnet payment smoke test.
 
-**1:40 - Team And Proof**
-
 ```text
 1:40 Switch to slide 9 with title "Team".
 Keep this slide on screen for team.
 ```
 
-I am Andrey Manolov, co-founder and CTO. I worked on Solana restaking devtools
-and partnerships at Cambrian. STAKR.space supports validator and gate
-operations.
+I am Andrey Manolov, co-founder and CTO. At Cambrian, as Deputy CEO, I worked
+on pre-seed fundraising, the pivot to Solana restaking devtools, partnerships,
+hiring, and B2B pilots. STAKR.space supports validator and gate operations.
 
 ```text
 1:48 Switch to slide 10 with title "Demo proof".
