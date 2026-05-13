@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { loadEnv, envString } from "./lib/env.mjs";
+import { base58Encode, publicKeyFromKeypairBytes, readSolanaKeypair } from "./lib/solana-keypair.mjs";
 
 loadEnv();
 
@@ -34,7 +35,7 @@ if (!fs.existsSync(absoluteWalletPath)) {
 }
 
 const keypair = readSolanaKeypair(absoluteWalletPath);
-const publicKey = keypair.slice(32, 64);
+const publicKey = publicKeyFromKeypairBytes(keypair);
 const secretKeyB58 = base58Encode(keypair);
 const publicKeyB58 = base58Encode(publicKey);
 const createdAt = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
@@ -69,24 +70,6 @@ console.log(`pubkey: ${publicKeyB58}`);
 console.log(`accounts file: ${accountsPath}`);
 console.log("secret key: <redacted>");
 
-function readSolanaKeypair(filePath) {
-  const raw = fs.readFileSync(filePath, "utf8");
-  let parsed;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (error) {
-    throw new Error(`failed to parse Solana keypair JSON: ${error.message}`);
-  }
-  if (!Array.isArray(parsed) || parsed.length !== 64) {
-    throw new Error("Solana keypair must be a JSON array with 64 byte values");
-  }
-  const bytes = Buffer.from(parsed);
-  if (bytes.length !== 64 || parsed.some((value) => !Number.isInteger(value) || value < 0 || value > 255)) {
-    throw new Error("Solana keypair contains invalid byte values");
-  }
-  return bytes;
-}
-
 function normalizeNetwork(value) {
   if (value === "mainnet-beta") return "mainnet";
   return value;
@@ -95,31 +78,4 @@ function normalizeNetwork(value) {
 function isInsidePath(child, parent) {
   const relative = path.relative(parent, child);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
-function base58Encode(buffer) {
-  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  if (!buffer.length) return "";
-
-  const digits = [0];
-  for (const byte of buffer) {
-    let carry = byte;
-    for (let index = 0; index < digits.length; index += 1) {
-      const value = digits[index] * 256 + carry;
-      digits[index] = value % 58;
-      carry = Math.floor(value / 58);
-    }
-    while (carry > 0) {
-      digits.push(carry % 58);
-      carry = Math.floor(carry / 58);
-    }
-  }
-
-  let leadingZeroes = 0;
-  for (const byte of buffer) {
-    if (byte !== 0) break;
-    leadingZeroes += 1;
-  }
-
-  return "1".repeat(leadingZeroes) + digits.reverse().map((digit) => alphabet[digit]).join("");
 }

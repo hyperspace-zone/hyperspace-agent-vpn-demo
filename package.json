@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "setup-pay-account": "node scripts/00-setup-pay-account.mjs",
+    "wallet-info": "node scripts/wallet-info.mjs",
     "check-env": "bash scripts/01-check-env.sh",
     "challenge": "bash scripts/02-show-mpp-challenge.sh",
     "baseline": "node scripts/measure-tcp-jitter.mjs --label baseline --out runtime/baseline.json",

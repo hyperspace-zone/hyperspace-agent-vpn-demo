@@ -55,6 +55,10 @@ content.
 
 These steps were tested on Ubuntu 24.04 LTS.
 
+This README uses Solana CLI and SPL Token CLI for explicit wallet checks. If
+you want the same demo without installing those tools, use
+[README.no-solana-cli.md](README.no-solana-cli.md).
+
 Before starting, prepare a Solana mainnet-beta keypair JSON file (`id.json`).
 The wallet must already contain:
 
@@ -325,6 +329,12 @@ npm run setup-pay-account
 
 `pay whoami` may round token display for readability. Use `spl-token balance`
 from the wallet verification step when you need the exact token amount.
+You can also print the same wallet address, Solscan link, SOL balance, and USDC
+balance without Solana CLI tools:
+
+```bash
+npm run wallet-info
+```
 
 Run only TCP jitter measurement:
 
