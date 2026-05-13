@@ -55,8 +55,8 @@ content.
 
 These steps were tested on Ubuntu 24.04 LTS.
 
-This README uses Solana CLI and SPL Token CLI for explicit wallet checks. If
-you want the same demo without installing those tools, use
+This README uses the Solana CLI tool suite for explicit wallet checks. If you
+want the same demo without installing those tools, use
 [README.no-solana-cli.md](README.no-solana-cli.md).
 
 Before starting, prepare a Solana mainnet-beta keypair JSON file (`id.json`).
@@ -104,9 +104,9 @@ install, restore it with:
 sudo apt-get install --reinstall -y nodejs
 ```
 
-### 3. Install Solana CLI And SPL Token CLI
+### 3. Install Solana CLI Tool Suite
 
-Install only the Solana CLI tool suite with the
+Install the Solana CLI tool suite with the
 [official Anza installer](https://solana.com/docs/intro/installation/dependencies):
 
 ```bash
@@ -118,19 +118,9 @@ spl-token --version
 ```
 
 The quick start requires `solana-keygen` to print the wallet address, `solana`
-to check SOL for fees, and `spl-token` to check the USDC balance.
-
-Recent Solana CLI releases include `spl-token`. If `spl-token --version` fails,
-install the SPL Token CLI with the
-[standard cargo command](https://solana.com/docs/tokens):
-
-```bash
-sudo apt-get install -y build-essential pkg-config libssl-dev libudev-dev
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-. "$HOME/.cargo/env"
-cargo install spl-token-cli
-spl-token --version
-```
+to check SOL for fees, and `spl-token` to check the USDC balance. The Anza
+installer used above includes `spl-token`; no separate SPL Token CLI install
+step is required.
 
 Set the CLI to mainnet-beta for manual checks:
 
@@ -280,8 +270,7 @@ the screen stays readable.
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`
-- Solana CLI: `solana`, `solana-keygen`
-- SPL Token CLI: `spl-token`
+- Solana CLI tool suite: `solana`, `solana-keygen`, `spl-token`
 - pay.sh compatible CLI installed locally with `npm install @solana/pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
 - a server with a stable internet egress IPv4 address for `HYPERSPACE_SOURCE_IP`
