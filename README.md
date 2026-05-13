@@ -95,6 +95,15 @@ node --version
 npm --version
 ```
 
+If npm prints a notice about a newer major version, ignore it for this demo.
+NodeSource's bundled npm is sufficient. Do not run `npm install -g npm@...`
+as part of the quick start; if a failed npm self-update breaks the global npm
+install, restore it with:
+
+```bash
+sudo apt-get install --reinstall -y nodejs
+```
+
 ### 3. Install Solana CLI And SPL Token CLI
 
 Install only the Solana CLI tool suite with the
@@ -287,8 +296,7 @@ to continue if the gateway asks for a different network or any `price_usd` above
 
 The paid config uses the platform's IP-to-IP VPN mechanism. The issued
 `AllowedIPs` is the configured `HYPERSPACE_TARGET_IP/32`, and the config does
-not include DNS lines. `WG_ALLOWED_IPS_MODE=issued` keeps the route exactly as
-issued by the API.
+not include DNS lines. The connect script uses this issued config unchanged.
 
 The demo overwrites the canonical runtime files on each run, but also writes
 timestamped sibling copies such as `runtime/baseline-20260513T120000Z.json`,
@@ -296,12 +304,9 @@ timestamped sibling copies such as `runtime/baseline-20260513T120000Z.json`,
 `runtime/session-20260513T120000Z.json`, and
 `runtime/hyperspace-demo-20260513T120000Z.conf`.
 
-Two WireGuard config files are intentional. `WG_CONFIG_PATH` defaults to
-`runtime/hyperspace-demo.conf` and stores the config exactly as issued by the
-paid API. `WG_CONNECT_CONFIG_PATH` defaults to `runtime/hsvgdemo.conf` and is
-the working copy passed to `wg-quick`; the connect script can still override
-`AllowedIPs` for debugging if configured to do so. The shorter basename also
-keeps the derived Linux interface name within the 15-character limit.
+`WG_CONFIG_PATH` defaults to `runtime/hyperspace-demo.conf`. `wg-quick` derives
+the Linux interface name from the filename, so keep the basename before `.conf`
+at 15 characters or fewer if you change this path.
 
 The wallet must live outside this repository. Never commit wallet files,
 recovery phrases, WireGuard configs, or raw payment credentials.
