@@ -51,6 +51,22 @@ against looking-glass targets that may not provide a complete public certificate
 chain. The scripts measure network timing; they do not trust or parse response
 content.
 
+## Example Outcome: SVG -> LON
+
+The latest recorded SVG -> LON run used target `185.97.160.8:443`.
+
+| Metric | Direct path | Hyperspace VPN | Delta |
+| --- | ---: | ---: | ---: |
+| Median TCP connect time | 29.054 ms | 32.599 ms | +3.545 ms |
+| p95 TCP connect time | 98.535 ms | 33.007 ms | -65.528 ms |
+| Stddev jitter | 23.400 ms | 0.206 ms | -23.194 ms |
+| Mean abs delta jitter | 19.316 ms | 0.209 ms | -19.107 ms |
+| Failures | 0 | 0 | 0 |
+
+The paid route adds a few milliseconds to the median, but the tail latency and
+jitter become much tighter. That is the intended DoubleZero-backed route
+quality improvement for this demo.
+
 ## Quick Start
 
 These steps were tested on Ubuntu 24.04 LTS.

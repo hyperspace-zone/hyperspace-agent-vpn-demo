@@ -45,13 +45,15 @@ The repository now defaults to the no-Solana-CLI path. Reviewers only need Node.
 
 A separate `README.solana-cli.md` remains available for reviewers who prefer explicit checks with `solana`, `solana-keygen`, and `spl-token`.
 
-The latest successful no-Solana-CLI run showed the intended behavior:
+The latest successful SVG -> LON run to `185.97.160.8:443` showed the intended behavior:
 
-| Metric | Direct path | Hyperspace VPN path |
-| --- | ---: | ---: |
-| Median TCP connect time | ~29.8 ms | ~32.9 ms |
-| p95 TCP connect time | ~98.9 ms | ~33.6 ms |
-| Stddev jitter | ~33.1 ms | ~0.3 ms |
+| Metric | Direct path | Hyperspace VPN path | Delta |
+| --- | ---: | ---: | ---: |
+| Median TCP connect time | 29.054 ms | 32.599 ms | +3.545 ms |
+| p95 TCP connect time | 98.535 ms | 33.007 ms | -65.528 ms |
+| Stddev jitter | 23.400 ms | 0.206 ms | -23.194 ms |
+| Mean abs delta jitter | 19.316 ms | 0.209 ms | -19.107 ms |
+| Failures | 0 | 0 | 0 |
 
 The median was slightly higher through the paid route, but p95 and jitter became much more stable. That is the key DoubleZero-backed routing result demonstrated in the video.
 

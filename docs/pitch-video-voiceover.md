@@ -100,17 +100,17 @@ validator and gate operations.
 
 ```text
 1:48 Switch to slide 10 with title "Demo proof".
-Keep this slide on screen for payment proof and launch ask.
+Keep this slide on screen for payment proof, SVG -> LON outcomes, and launch ask.
 The demo repo link and QR code are on this slide.
 ```
 
-The demo proves payment and access: `0.000001 USDC` paid, funds received,
-WireGuard issued, route used, session revoked.
+The demo proves payment and access, then shows the SVG to London outcome:
+p95 drops from 98.5 to 33 milliseconds, and stddev jitter from 23.4 to 0.2.
 
 We want teams to test paid connectivity with hosted agents, crawlers, RPC, and
 indexers.
 
 ```text
-1:55 Switch to slide 11 with title "Contacts".
+1:58 Switch to slide 11 with title "Contacts".
 Use this as the final end card; do not read the contact lines aloud.
 ```
