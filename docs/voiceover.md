@@ -2,12 +2,16 @@
 
 Target length: under 3 minutes at a calm demo pace.
 
+Text in gray blocks is not meant to be read aloud. It is a screen/action cue.
+
 ## Script
 
 **0:00 - Landing**
 
-Show: open `https://hyperspace.zone/`. Hold on the hero text and the
-"Download Client" button for a few seconds.
+```text
+Show: open https://hyperspace.zone/.
+Hold on the hero text and the "Download Client" button for a few seconds.
+```
 
 This is Hyperspace: a low-latency network access layer delivered through a
 client VPN.
@@ -22,9 +26,11 @@ then revoke the session.
 
 **0:25 - What The Agent Is Buying**
 
-Show: switch to the GitHub repository README. Keep the "What This Shows" or
-"Public Staging Target" section visible. Point out the staging URL only if it
-is already on screen.
+```text
+Show: switch to the GitHub repository README.
+Keep the "What This Shows" or "Public Staging Target" section visible.
+Point out the staging URL only if it is already on screen.
+```
 
 Instead of a manual VPN subscription, the agent talks to a payment-gated API.
 
@@ -41,8 +47,10 @@ specific route.
 
 **0:55 - Setup**
 
-Show: terminal on a clean Ubuntu 24.04 server. Run or show the completed output
-for:
+```text
+Show: terminal on a clean Ubuntu 24.04 server.
+Run or show the completed output for the package and Node.js install.
+```
 
 ```bash
 sudo apt-get update
@@ -53,15 +61,16 @@ node --version
 npm --version
 ```
 
-Then show clone and wallet setup:
+```text
+Then show clone and wallet setup.
+Do not zoom into the raw contents of id.json.
+```
 
 ```bash
 git clone https://github.com/hyperspace-zone/hyperspace-agent-vpn-demo.git
 cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
-
-Do not zoom into the raw contents of `id.json`.
 
 I am running this on a clean Ubuntu 24.04 server.
 
@@ -73,18 +82,21 @@ The wallet check is done by a local Node.js script. It prints the wallet
 address, a Solscan link, the SOL balance for transaction fees, and the USDC
 balance for payment.
 
-Show:
+```text
+Show: wallet info.
+Hold on the wallet address, Solscan link, SOL balance, and USDC balance.
+```
 
 ```bash
 npm run wallet-info
 ```
 
-Hold on the wallet address, Solscan link, SOL balance, and USDC balance.
-
 Then I install the pay.sh CLI locally with `npm install @solana/pay`, configure
 the server egress IP as the source, and set the target IP for the VPN session.
 
-Show:
+```text
+Show: pay CLI install and .env source/target IP setup.
+```
 
 ```bash
 npm install @solana/pay
@@ -97,15 +109,16 @@ sed -i "s|^JITTER_TARGET_HOST=.*|JITTER_TARGET_HOST=185.97.160.8|" .env
 
 **1:25 - Challenge And Baseline**
 
-Show:
+```text
+Show: pay account setup, environment check, and HTTP 402 challenge.
+Hold on "network: mainnet" and "price: 0.000001 USDC".
+```
 
 ```bash
 npm run setup-pay-account
 npm run check-env
 npm run challenge
 ```
-
-Hold on `network: mainnet` and `price: 0.000001 USDC`.
 
 Before buying anything, the agent requests the payment challenge.
 
@@ -115,13 +128,14 @@ script also enforces the local spending limit before it will pay.
 Now I run the baseline measurement: 30 TCP connect attempts directly to the
 target, without Hyperspace.
 
-Show:
+```text
+Show: baseline measurement.
+During the run, let several samples scroll. Then stop on the summary lines.
+```
 
 ```bash
 npm run baseline
 ```
-
-During the run, let several samples scroll. Then stop on the summary lines.
 
 In this run, the direct path has a median around 29.8 milliseconds, but the
 tail is unstable: p95 is about 98.9 milliseconds, and jitter is about
@@ -131,14 +145,16 @@ The median is fine, but the route is not predictable.
 
 **1:55 - Buy, Connect, Measure**
 
-Show:
+```text
+Show: paid VPN config purchase.
+Hold on mode: ip_to_ip, source ip, target ip, issued config id, and the
+redacted config preview.
+Do not reveal private key material.
+```
 
 ```bash
 npm run buy-vpn
 ```
-
-Hold on `mode: ip_to_ip`, `source ip`, `target ip`, `issued config id`, and the
-redacted config preview. Do not reveal private key material.
 
 Now the agent buys the VPN config.
 
@@ -149,24 +165,26 @@ without rewriting DNS or routes.
 WireGuard creates the `hyperspace-demo` interface and adds a route only for
 `185.97.160.8/32`.
 
-Show:
+```text
+Show: WireGuard connect.
+Hold on "route scope: as issued by server (185.97.160.8/32)" and the
+WireGuard interface summary.
+```
 
 ```bash
 sudo bash scripts/04-connect-wireguard.sh
 ```
 
-Hold on `route scope: as issued by server (185.97.160.8/32)` and the WireGuard
-interface summary.
-
 Now I repeat the same 30 TCP connect measurements through the Hyperspace VPN.
 
-Show:
+```text
+Show: VPN measurement.
+Let the stable samples scroll, then stop on the summary.
+```
 
 ```bash
 npm run vpn-measure
 ```
-
-Let the stable samples scroll, then stop on the summary.
 
 The VPN path has a median around 32.9 milliseconds, so the median is about
 3 milliseconds higher. But the important result is the tail: p95 drops to about
@@ -177,26 +195,26 @@ lowest possible median.
 
 **2:35 - Cleanup And Takeaway**
 
-Show:
+```text
+Show: comparison table.
+Hold on p95 ms, stddev jitter ms, and mean abs delta jitter ms.
+```
 
 ```bash
 npm run compare
 ```
 
-Hold on the comparison table, especially `p95 ms`, `stddev jitter ms`, and
-`mean abs delta jitter ms`.
-
 Finally, the agent disconnects WireGuard and revokes the session.
 
-Show:
+```text
+Show: disconnect and revoke.
+End on the "revocation requested" line or the timestamped session metadata line.
+```
 
 ```bash
 sudo bash scripts/07-disconnect-wireguard.sh
 npm run revoke
 ```
-
-End on the `revocation requested` line or the timestamped session metadata
-line.
 
 The session is prepaid, short-lived, and task-scoped. The run also keeps
 timestamped reports and the issued config metadata for auditability.
