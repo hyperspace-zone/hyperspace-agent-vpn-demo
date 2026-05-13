@@ -97,12 +97,7 @@ npm --version
 
 If npm prints a notice about a newer major version, ignore it for this demo.
 NodeSource's bundled npm is sufficient. Do not run `npm install -g npm@...`
-as part of the quick start; if a failed npm self-update breaks the global npm
-install, restore it with:
-
-```bash
-sudo apt-get install --reinstall -y nodejs
-```
+as part of the quick start.
 
 ### 3. Install Solana CLI Tool Suite
 
@@ -260,9 +255,6 @@ sudo bash scripts/07-disconnect-wireguard.sh
 npm run revoke
 ```
 
-For an OBS recording, run the commands one by one instead of `npm run demo` so
-the screen stays readable.
-
 ## Requirements
 
 - Linux host close to the Stavanger (SVG) ingress gate
@@ -393,7 +385,6 @@ spl-token balance "$USDC_MINT" \
 AGENTS.md                     Agent instructions
 .env.example                  Safe environment template
 scripts/                      Demo automation scripts
-docs/demo-video-runbook.md    Screen recording plan
 docs/security.md              Secret-handling rules
 runtime/                      Local generated files, ignored by git
 ```

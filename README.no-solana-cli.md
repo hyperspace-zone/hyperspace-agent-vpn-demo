@@ -40,12 +40,7 @@ npm --version
 
 If npm prints a notice about a newer major version, ignore it for this demo.
 NodeSource's bundled npm is sufficient. Do not run `npm install -g npm@...`
-as part of the quick start; if a failed npm self-update breaks the global npm
-install, restore it with:
-
-```bash
-sudo apt-get install --reinstall -y nodejs
-```
+as part of the quick start.
 
 ### 2. Clone The Demo
 
