@@ -83,25 +83,33 @@ sudo apt-get update
 sudo apt-get install -y git curl jq ca-certificates wireguard-tools
 ```
 
-### 2. Install Solana CLI, SPL Token CLI, And Node.js
+### 2. Install Node.js And npm
 
-Install the Solana toolchain with the
-[official Solana quick installer](https://solana.com/docs/intro/installation):
+Ubuntu 24.04 apt currently ships Node.js 18, while the current `@solana/pay`
+package expects Node.js 20+. Install Node.js 22 from NodeSource:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
-export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH"
-solana --version
-solana-keygen --version
-spl-token --version
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
 node --version
 npm --version
 ```
 
+### 3. Install Solana CLI And SPL Token CLI
+
+Install only the Solana CLI tool suite with the
+[official Anza installer](https://solana.com/docs/intro/installation/dependencies):
+
+```bash
+sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+solana --version
+solana-keygen --version
+spl-token --version
+```
+
 The quick start requires `solana-keygen` to print the wallet address, `solana`
-to check SOL for fees, `spl-token` to check the USDC balance, and Node.js 20.18+
-for `@solana/pay`. The Solana quick installer also installs Node.js, so this
-README does not have a separate NodeSource step.
+to check SOL for fees, and `spl-token` to check the USDC balance.
 
 Recent Solana CLI releases include `spl-token`. If `spl-token --version` fails,
 install the SPL Token CLI with the
@@ -121,7 +129,7 @@ Set the CLI to mainnet-beta for manual checks:
 solana config set --url mainnet-beta
 ```
 
-### 3. Clone The Demo
+### 4. Clone The Demo
 
 ```bash
 mkdir -p "$HOME/hyperspace"
@@ -131,7 +139,7 @@ cd hyperspace-agent-vpn-demo
 cp .env.example .env
 ```
 
-### 4. Install pay CLI
+### 5. Install pay CLI
 
 Hyperspace uses the [pay.sh](https://pay.sh/) CLI for MPP / HTTP 402 payment
 authorization. Install it locally inside this demo directory:
@@ -149,7 +157,7 @@ For this demo, do not run GUI/keyring account setup on a headless server; the
 repository script below imports a Solana keypair JSON into the local pay account
 file.
 
-### 5. Copy A Funded Wallet
+### 6. Copy A Funded Wallet
 
 Copy your already-funded Solana mainnet-beta `id.json` to the server.
 
@@ -173,7 +181,7 @@ chmod 600 "$HYPERSPACE_WALLET"
 sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
-### 6. Verify Wallet Address And Balances
+### 7. Verify Wallet Address And Balances
 
 Print the wallet address, a Solscan link, SOL for fees, and USDC for the paid
 request:
@@ -197,7 +205,7 @@ token account does not exist, fund the wallet with mainnet USDC before running
 the paid step. `npm run check-env` repeats these checks before the paid command
 sequence continues.
 
-### 7. Configure `.env`
+### 8. Configure `.env`
 
 Set the source and target IPs. The source IP must be this server's stable
 internet egress address; the target IP is the destination allowed by the paid
@@ -234,10 +242,11 @@ JITTER_TARGET_HOST=185.97.160.8
 At `npm run buy-vpn`, the paid WireGuard config will be issued for
 `HYPERSPACE_SOURCE_IP -> HYPERSPACE_TARGET_IP` only.
 
-### 8. Run The Demo
+### 9. Run The Demo
 
 Run the demo step by step. Stop on the first error; the comparison is valid only
-after `npm run buy-vpn` and `sudo npm run connect` both succeed.
+after `npm run buy-vpn` and `sudo bash scripts/04-connect-wireguard.sh` both
+succeed.
 
 ```bash
 npm run setup-pay-account
@@ -245,10 +254,10 @@ npm run check-env
 npm run challenge
 npm run baseline
 npm run buy-vpn
-sudo npm run connect
+sudo bash scripts/04-connect-wireguard.sh
 npm run vpn-measure
 npm run compare
-sudo npm run disconnect
+sudo bash scripts/07-disconnect-wireguard.sh
 npm run revoke
 ```
 
@@ -258,7 +267,7 @@ the screen stays readable.
 ## Requirements
 
 - Linux host close to the Stavanger (SVG) ingress gate
-- Node.js 20.18+; the Solana quick installer provides a current Node.js release
+- Node.js 20.18+; Node.js 22 is used in the Ubuntu 24.04 quick start
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`

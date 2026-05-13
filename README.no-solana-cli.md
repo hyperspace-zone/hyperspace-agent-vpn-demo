@@ -140,10 +140,10 @@ npm run check-env
 npm run challenge
 npm run baseline
 npm run buy-vpn
-sudo npm run connect
+sudo bash scripts/04-connect-wireguard.sh
 npm run vpn-measure
 npm run compare
-sudo npm run disconnect
+sudo bash scripts/07-disconnect-wireguard.sh
 npm run revoke
 ```
 

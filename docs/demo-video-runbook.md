@@ -104,7 +104,7 @@ Explain:
 Run:
 
 ```bash
-sudo npm run connect
+sudo bash scripts/04-connect-wireguard.sh
 npm run vpn-measure
 ```
 
@@ -132,7 +132,7 @@ Explain:
 Run:
 
 ```bash
-sudo npm run disconnect
+sudo bash scripts/07-disconnect-wireguard.sh
 npm run revoke
 ```
 
