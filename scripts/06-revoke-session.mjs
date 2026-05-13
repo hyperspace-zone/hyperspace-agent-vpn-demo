@@ -35,5 +35,5 @@ console.log("revocation requested");
 console.log(`session metadata updated: ${sessionPath}`);
 
 function selectApiBase() {
-  return envString("HYPERSPACE_PAY_BASE", "https://80.69.175.159/pay").replace(/\/+$/, "");
+  return envString("HYPERSPACE_PAY_BASE", "https://app.dev.hyperspace.zone/pay").replace(/\/+$/, "");
 }

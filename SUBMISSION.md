@@ -125,7 +125,7 @@ The project includes STAKR.space as an infrastructure partner.
 ## Contact
 
 - Website: https://hyperspace.zone
-- Live app: https://80.69.175.159/ (development enfironment made specially for Frontier)
+- Live app: https://app.dev.hyperspace.zone/ (development environment made specially for Frontier)
 - Colosseum: https://arena.colosseum.org/projects/explore/hyperspace
 - GitHub: https://github.com/hyperspace-zone/hyperspace-agent-vpn-demo
 - X: https://x.com/yadrena

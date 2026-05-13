@@ -26,7 +26,7 @@ disconnect, and revoke the session.
 The current public staging base is:
 
 ```bash
-https://80.69.175.159/pay
+https://app.dev.hyperspace.zone/pay
 ```
 
 The default route is:
@@ -212,8 +212,8 @@ recovery phrases, WireGuard configs, or raw payment credentials.
 Check staging health:
 
 ```bash
-curl -k https://80.69.175.159/pay/v1/agent/health
-curl -k https://80.69.175.159/pay/v1/agent/gates
+curl -k https://app.dev.hyperspace.zone/pay/v1/agent/health
+curl -k https://app.dev.hyperspace.zone/pay/v1/agent/gates
 ```
 
 Show the live MPP / HTTP 402 challenge without using the pay CLI:

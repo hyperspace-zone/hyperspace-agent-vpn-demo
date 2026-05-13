@@ -77,7 +77,7 @@ console.log("redacted config preview:");
 console.log(redactWireGuardConfig(wireguardConfig).split("\n").slice(0, 12).join("\n"));
 
 function selectApiBase() {
-  return envString("HYPERSPACE_PAY_BASE", "https://80.69.175.159/pay").replace(/\/+$/, "");
+  return envString("HYPERSPACE_PAY_BASE", "https://app.dev.hyperspace.zone/pay").replace(/\/+$/, "");
 }
 
 function summarizePaidResponse(value) {

@@ -10,7 +10,7 @@ WireGuard configs closed. Do not show private keys or seed phrases.
 Suggested panes:
 
 - Left: terminal running commands
-- Right: browser open to `https://80.69.175.159/` or the GitHub repo README
+- Right: browser open to `https://app.dev.hyperspace.zone/` or the GitHub repo README
 
 ## Recording Flow
 

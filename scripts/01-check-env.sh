@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/env.sh"
 load_env_file ".env"
 
-: "${HYPERSPACE_PAY_BASE:=https://80.69.175.159/pay}"
+: "${HYPERSPACE_PAY_BASE:=https://app.dev.hyperspace.zone/pay}"
 : "${HYPERSPACE_API_INSECURE_TLS:=true}"
 : "${PAY_BIN:=pay}"
 : "${PAY_NETWORK:=mainnet}"
