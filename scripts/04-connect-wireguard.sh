@@ -76,7 +76,7 @@ guard_full_tunnel_over_ssh() {
     if [[ "${WG_ALLOW_FULL_TUNNEL_ON_SSH}" != "true" ]]; then
       echo "Refusing full-tunnel WireGuard over an active SSH session." >&2
       echo "This can break SSH access on headless servers." >&2
-      echo "Default safe mode is WG_ALLOWED_IPS_MODE=issued for IP-to-IP configs." >&2
+      echo "Default safe mode is WG_ALLOWED_IPS_MODE=issued for IP-to-IP VPN configs." >&2
       echo "If you really need full tunnel, run inside tmux and set WG_ALLOW_FULL_TUNNEL_ON_SSH=true." >&2
       exit 1
     fi

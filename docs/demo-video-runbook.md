@@ -19,7 +19,7 @@ Suggested panes:
 Show the README and explain:
 
 > This is an agent-facing demo. The agent receives a repository and a Solana
-> wallet file, requests a prepaid Hyperspace IP-to-IP route to the configured
+> wallet file, requests a prepaid Hyperspace IP-to-IP VPN route to the configured
 > target IP, receives a destination-restricted WireGuard config, connects
 > through Stavanger to London, measures jitter, then revokes the session.
 > Hyperspace will become discoverable through pay.sh; today we use the
@@ -48,7 +48,7 @@ Explain:
 
 > The public staging endpoint is live. The agent can list available gates and
 > sees Stavanger and London as active route choices. The environment also shows
-> the stable source egress IP and the configured target IP for the IP-to-IP
+> the stable source egress IP and the configured target IP for the IP-to-IP VPN
 > config.
 
 ### 0:45 to 1:05
@@ -92,7 +92,7 @@ npm run buy-vpn
 
 Explain:
 
-> The agent now requests a prepaid IP-to-IP route from the stable source egress
+> The agent now requests a prepaid IP-to-IP VPN route from the stable source egress
 > IP to the configured target IP, through Stavanger ingress and London egress.
 > The pay CLI handles the MPP / HTTP 402 challenge, pays from the demo wallet,
 > and the live Hyperspace API returns a WireGuard config whose AllowedIPs is the
@@ -110,7 +110,7 @@ npm run vpn-measure
 Explain:
 
 > The agent connects the tunnel and repeats the same jitter measurement over the
-> Hyperspace route. Because the config is IP-to-IP, only the configured target
+> Hyperspace route. Because the config is IP-to-IP VPN, only the configured target
 > IP is sent through WireGuard, while SSH stays on the original route.
 
 ### 2:20 to 2:45

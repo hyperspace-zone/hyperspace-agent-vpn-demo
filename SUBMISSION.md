@@ -1,6 +1,6 @@
 # Hyperspace — Colosseum Frontier 2026 Submission
 
-Hyperspace turns Solana payments into machine-native network access. AI agents can pay for a prepaid IP-to-IP session, receive a destination-restricted WireGuard config as an API response, connect through Hyperspace gates, measure route quality, and revoke the session when the task is done.
+Hyperspace turns Solana payments into machine-native network access. AI agents can pay for a prepaid IP-to-IP VPN session, receive a destination-restricted WireGuard config as an API response, connect through Hyperspace gates, measure route quality, and revoke the session when the task is done.
 
 This repository is the public agent VPN demo for the Hyperspace Colosseum Frontier 2026 project.
 
@@ -24,11 +24,11 @@ This repository is the public agent VPN demo for the Hyperspace Colosseum Fronti
 
 Hyperspace is developer infrastructure for autonomous agents and Web3 apps. The core product is a control plane that lets a machine buy temporary network access, receive a prepaid WireGuard config, use the route for a bounded task, and then revoke it.
 
-During Colosseum Frontier 2026, we focused on the agent-facing paid IP-to-IP flow:
+During Colosseum Frontier 2026, we focused on the agent-facing paid IP-to-IP VPN flow:
 
 1. An agent inspects available Hyperspace gates.
 2. It measures baseline route quality.
-3. It pays for a prepaid IP-to-IP session with USDC through a pay.sh / MPP / HTTP 402-style flow.
+3. It pays for a prepaid IP-to-IP VPN session with USDC through a pay.sh / MPP / HTTP 402-style flow.
 4. Hyperspace returns a destination-restricted WireGuard config.
 5. The agent connects through the route.
 6. It measures latency and jitter after the paid session.
@@ -132,4 +132,4 @@ The project includes STAKR.space as an infrastructure partner.
 - TG contact https://t.me/yadren_a
 - STAKR.space: https://stakr.space
 
-The full paid IP-to-IP flow requires a funded Solana wallet and the live staging/demo payment gateway described in the repository README. Do not commit `.env`, wallet files, generated WireGuard configs, or anything under `runtime/`.
+The full paid IP-to-IP VPN flow requires a funded Solana wallet and the live staging/demo payment gateway described in the repository README. Do not commit `.env`, wallet files, generated WireGuard configs, or anything under `runtime/`.

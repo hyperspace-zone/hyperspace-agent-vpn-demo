@@ -23,7 +23,7 @@ if (!isIpv4(sourceIp)) {
   throw new Error("HYPERSPACE_SOURCE_IP must be set to this server's stable public egress IPv4 address");
 }
 if (!isIpv4(targetIp)) {
-  throw new Error("HYPERSPACE_TARGET_IP must be set to the destination IPv4 address for the paid IP-to-IP config");
+  throw new Error("HYPERSPACE_TARGET_IP must be set to the destination IPv4 address for the paid IP-to-IP VPN config");
 }
 
 const body = {

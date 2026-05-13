@@ -91,7 +91,7 @@ if ! is_ipv4 "${HYPERSPACE_SOURCE_IP}"; then
 fi
 
 if ! is_ipv4 "${HYPERSPACE_TARGET_IP}"; then
-  echo "error: HYPERSPACE_TARGET_IP must be set to the destination IPv4 address for the paid IP-to-IP config" >&2
+  echo "error: HYPERSPACE_TARGET_IP must be set to the destination IPv4 address for the paid IP-to-IP VPN config" >&2
   errors=1
 fi
 
@@ -100,7 +100,7 @@ if [[ -n "${HYPERSPACE_TARGET_IP}" && "${JITTER_TARGET_HOST}" != "${HYPERSPACE_T
 fi
 
 if [[ "${errors}" -ne 0 ]]; then
-  echo "Fix the environment errors above before running the paid IP-to-IP steps." >&2
+  echo "Fix the environment errors above before running the paid IP-to-IP VPN steps." >&2
   exit 1
 fi
 

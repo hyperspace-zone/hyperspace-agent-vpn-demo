@@ -1,8 +1,8 @@
-# Hyperspace Agent VPN Demo
+# Hyperspace IP-to-IP VPN for Agents Demo
 
 This repository is a live-product demo for an autonomous agent that requests a
-prepaid Hyperspace IP-to-IP WireGuard route, connects through a Stavanger
-ingress and London egress, and compares network latency and jitter before and
+prepaid Hyperspace IP-to-IP VPN route, connects through a Stavanger ingress
+and London egress, and compares network latency and jitter before and
 after the paid session.
 
 The demo is intentionally agent-facing: give an agent this repository, a Solana
@@ -67,7 +67,7 @@ Keep the wallet file outside this repository.
 The server running the demo also needs a stable internet egress IPv4 address.
 It does not have to be assigned directly to the server as a public interface
 address; a stable NAT gateway egress address is fine. It must not change during
-the test, because the IP-to-IP config is issued for that source address.
+the test, because the IP-to-IP VPN config is issued for that source address.
 
 ### 1. Install Base Packages
 
@@ -155,7 +155,7 @@ sed -i "s|^HYPERSPACE_TARGET_IP=.*|HYPERSPACE_TARGET_IP=185.97.160.8|" .env
 sed -i "s|^JITTER_TARGET_HOST=.*|JITTER_TARGET_HOST=185.97.160.8|" .env
 ```
 
-Verify that `.env` points to the wallet and the intended IP-to-IP test:
+Verify that `.env` points to the wallet and the intended IP-to-IP VPN test:
 
 ```bash
 grep -E '^(SOLANA_KEYPAIR_PATH|PAY_ACCOUNT|PAY_YOLO_UPTO|HYPERSPACE_SOURCE_IP|HYPERSPACE_TARGET_IP|JITTER_TARGET_HOST)=' .env
@@ -217,7 +217,7 @@ Before spending, `npm run buy-vpn` preflights the HTTP 402 challenge and refuses
 to continue if the gateway asks for a different network or any `price_usd` above
 `PAY_YOLO_UPTO`.
 
-The paid config uses the platform's IP-to-IP mechanism. The issued
+The paid config uses the platform's IP-to-IP VPN mechanism. The issued
 `AllowedIPs` is the configured `HYPERSPACE_TARGET_IP/32`, and the config does
 not include DNS lines. `WG_ALLOWED_IPS_MODE=issued` keeps the route exactly as
 issued by the API.
