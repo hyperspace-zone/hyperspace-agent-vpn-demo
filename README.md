@@ -59,7 +59,8 @@ Before starting, prepare a Solana mainnet-beta keypair JSON file (`id.json`).
 The wallet must already contain:
 
 - more than `0.000001 USDC` for the paid test request
-- SOL for Solana transaction fees
+- SOL for Solana transaction fees; recent demo payment signatures are around
+  `0.000005001 SOL`, so keep at least `0.00001 SOL` for a single run
 
 USDC alone is not enough because the payment transaction still needs SOL fees.
 Keep the wallet file outside this repository.
@@ -78,16 +79,42 @@ sudo apt-get update
 sudo apt-get install -y git curl jq ca-certificates wireguard-tools
 ```
 
-### 2. Install Node.js And npm
+### 2. Install Solana CLI, SPL Token CLI, And Node.js
 
-Ubuntu 24.04 apt currently ships Node.js 18, while the current `@solana/pay`
-package expects Node.js 20+. Install Node.js 22 from NodeSource:
+Install the Solana toolchain with the
+[official Solana quick installer](https://solana.com/docs/intro/installation):
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs
+curl --proto '=https' --tlsv1.2 -sSfL https://solana-install.solana.workers.dev | bash
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH"
+solana --version
+solana-keygen --version
+spl-token --version
 node --version
 npm --version
+```
+
+The quick start requires `solana-keygen` to print the wallet address, `solana`
+to check SOL for fees, `spl-token` to check the USDC balance, and Node.js 20.18+
+for `@solana/pay`. The Solana quick installer also installs Node.js, so this
+README does not have a separate NodeSource step.
+
+Recent Solana CLI releases include `spl-token`. If `spl-token --version` fails,
+install the SPL Token CLI with the
+[standard cargo command](https://solana.com/docs/tokens):
+
+```bash
+sudo apt-get install -y build-essential pkg-config libssl-dev libudev-dev
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+. "$HOME/.cargo/env"
+cargo install spl-token-cli
+spl-token --version
+```
+
+Set the CLI to mainnet-beta for manual checks:
+
+```bash
+solana config set --url mainnet-beta
 ```
 
 ### 3. Clone The Demo
@@ -142,7 +169,31 @@ chmod 600 "$HYPERSPACE_WALLET"
 sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
-### 6. Configure `.env`
+### 6. Verify Wallet Address And Balances
+
+Print the wallet address, a Solscan link, SOL for fees, and USDC for the paid
+request:
+
+```bash
+OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
+echo "wallet:  $OWNER"
+echo "solscan: https://solscan.io/account/$OWNER"
+
+solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
+
+USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+spl-token balance "$USDC_MINT" \
+  --owner "$OWNER" \
+  --url https://api.mainnet-beta.solana.com
+```
+
+Continue only if the wallet has at least `0.00001 SOL` and more than
+`0.000001 USDC`. If the USDC command prints `0` or fails because the associated
+token account does not exist, fund the wallet with mainnet USDC before running
+the paid step. `npm run check-env` repeats these checks before the paid command
+sequence continues.
+
+### 7. Configure `.env`
 
 Set the source and target IPs. The source IP must be this server's stable
 internet egress address; the target IP is the destination allowed by the paid
@@ -158,7 +209,7 @@ sed -i "s|^JITTER_TARGET_HOST=.*|JITTER_TARGET_HOST=185.97.160.8|" .env
 Verify that `.env` points to the wallet and the intended IP-to-IP VPN test:
 
 ```bash
-grep -E '^(SOLANA_KEYPAIR_PATH|PAY_ACCOUNT|PAY_YOLO_UPTO|HYPERSPACE_SOURCE_IP|HYPERSPACE_TARGET_IP|JITTER_TARGET_HOST)=' .env
+grep -E '^(SOLANA_KEYPAIR_PATH|PAY_ACCOUNT|PAY_YOLO_UPTO|SOLANA_RPC_URL|USDC_MINT|MIN_SOL_FEE_BALANCE|MIN_USDC_BALANCE|HYPERSPACE_SOURCE_IP|HYPERSPACE_TARGET_IP|JITTER_TARGET_HOST)=' .env
 ```
 
 Expected values:
@@ -167,6 +218,10 @@ Expected values:
 SOLANA_KEYPAIR_PATH=/home/<user>/.config/hyperspace/id.json
 PAY_ACCOUNT=hyperspace-agent-demo
 PAY_YOLO_UPTO="0.000001 USDC"
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+MIN_SOL_FEE_BALANCE=0.00001
+MIN_USDC_BALANCE=0.000001
 HYPERSPACE_SOURCE_IP=<stable server egress IPv4>
 HYPERSPACE_TARGET_IP=185.97.160.8
 JITTER_TARGET_HOST=185.97.160.8
@@ -175,7 +230,7 @@ JITTER_TARGET_HOST=185.97.160.8
 At `npm run buy-vpn`, the paid WireGuard config will be issued for
 `HYPERSPACE_SOURCE_IP -> HYPERSPACE_TARGET_IP` only.
 
-### 7. Run The Demo
+### 8. Run The Demo
 
 Run the demo step by step. Stop on the first error; the comparison is valid only
 after `npm run buy-vpn` and `sudo npm run connect` both succeed.
@@ -199,15 +254,15 @@ the screen stays readable.
 ## Requirements
 
 - Linux host close to the Stavanger (SVG) ingress gate
-- Node.js 20.18+; Node.js 22 is used in the Ubuntu 24.04 quick start
+- Node.js 20.18+; the Solana quick installer provides a current Node.js release
 - `curl`
 - WireGuard tools: `wg`, `wg-quick`
 - `sudo` rights for `wg-quick up/down`
+- Solana CLI: `solana`, `solana-keygen`
+- SPL Token CLI: `spl-token`
 - pay.sh compatible CLI installed locally with `npm install @solana/pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
 - a server with a stable internet egress IPv4 address for `HYPERSPACE_SOURCE_IP`
-- optional Solana CLI if you need to generate a new wallet on the server
-- optional SPL Token CLI if you need exact USDC balance checks on the server
 
 The hackathon demo uses the smallest nonzero USDC amount, `0.000001 USDC`, to
 prove paid access without making every proof-of-concept run expensive. This is
@@ -269,7 +324,7 @@ npm run setup-pay-account
 ```
 
 `pay whoami` may round token display for readability. Use `spl-token balance`
-from the optional wallet tools section when you need the exact token amount.
+from the wallet verification step when you need the exact token amount.
 
 Run only TCP jitter measurement:
 
@@ -288,21 +343,11 @@ Show a report after both measurements:
 npm run compare
 ```
 
-## Optional Wallet Tools
+## Create A New Test Wallet
 
-The main quick start does not require Solana CLI or SPL Token CLI if you already
-have a funded `id.json`. Use this section only when you need to create or check
-a wallet from the server.
-
-Install Solana CLI:
-
-```bash
-sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
-export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
-solana --version
-```
-
-Create a dedicated test wallet outside the repository:
+If you do not already have a dedicated funded `id.json`, create one outside the
+repository and fund the printed address before continuing. Creating the keypair
+only creates an address; it does not add SOL or USDC.
 
 ```bash
 mkdir -p "$HOME/.config/hyperspace"
@@ -313,9 +358,6 @@ chmod 600 "$HYPERSPACE_WALLET"
 sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 ```
 
-Fund the printed address before continuing. Creating the keypair only creates an
-address; it does not add SOL or USDC.
-
 Check SOL:
 
 ```bash
@@ -323,16 +365,7 @@ OWNER="$(solana-keygen pubkey "$HYPERSPACE_WALLET")"
 solana balance "$OWNER" --url https://api.mainnet-beta.solana.com
 ```
 
-Install SPL Token CLI only if you want an exact USDC balance from the server:
-
-```bash
-sudo apt-get install -y build-essential pkg-config libssl-dev libudev-dev
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-. "$HOME/.cargo/env"
-cargo install spl-token-cli --locked
-```
-
-Then check mainnet USDC:
+Check mainnet USDC:
 
 ```bash
 USDC_MINT=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v

@@ -11,6 +11,10 @@ load_env_file ".env"
 : "${PAY_BIN:=pay}"
 : "${PAY_NETWORK:=mainnet}"
 : "${PAY_ACCOUNT:=hyperspace-agent-demo}"
+: "${SOLANA_RPC_URL:=https://api.mainnet-beta.solana.com}"
+: "${USDC_MINT:=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v}"
+: "${MIN_SOL_FEE_BALANCE:=0.00001}"
+: "${MIN_USDC_BALANCE:=0.000001}"
 : "${SOLANA_KEYPAIR_PATH:=}"
 : "${HYPERSPACE_SOURCE_IP:=}"
 : "${HYPERSPACE_TARGET_IP:=}"
@@ -19,6 +23,7 @@ load_env_file ".env"
 echo "== Hyperspace agent demo environment =="
 echo "pay base: ${HYPERSPACE_PAY_BASE}"
 echo "pay account: ${PAY_ACCOUNT}"
+echo "solana rpc: ${SOLANA_RPC_URL}"
 echo "wallet path configured: $([[ -n "${SOLANA_KEYPAIR_PATH}" ]] && echo yes || echo no)"
 echo "source ip: ${HYPERSPACE_SOURCE_IP:-<not set>}"
 echo "target ip: ${HYPERSPACE_TARGET_IP:-<not set>}"
@@ -38,7 +43,7 @@ is_ipv4() {
   done
 }
 
-for cmd in node curl bash; do
+for cmd in node curl bash solana solana-keygen spl-token; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "error: missing required command: $cmd" >&2
     errors=1
@@ -69,6 +74,7 @@ else
   fi
 fi
 
+wallet_owner=""
 if [[ -z "${SOLANA_KEYPAIR_PATH}" ]]; then
   echo "error: SOLANA_KEYPAIR_PATH is not set in .env" >&2
   errors=1
@@ -82,6 +88,12 @@ else
   if [[ -n "${wallet_abs}" && "${wallet_abs}" == "${repo_root}"* ]]; then
     echo "error: wallet path is inside this repository; move it outside before running the demo" >&2
     exit 1
+  fi
+  if command -v solana-keygen >/dev/null 2>&1 && [[ -f "${SOLANA_KEYPAIR_PATH}" ]]; then
+    if ! wallet_owner="$(solana-keygen pubkey "${SOLANA_KEYPAIR_PATH}" 2>/dev/null)"; then
+      echo "error: failed to read wallet pubkey from SOLANA_KEYPAIR_PATH" >&2
+      errors=1
+    fi
   fi
 fi
 
@@ -101,6 +113,58 @@ fi
 
 if [[ "${errors}" -ne 0 ]]; then
   echo "Fix the environment errors above before running the paid IP-to-IP VPN steps." >&2
+  exit 1
+fi
+
+echo
+echo "== Wallet balances =="
+echo "wallet: ${wallet_owner}"
+echo "solscan: https://solscan.io/account/${wallet_owner}"
+
+if ! sol_json="$(solana balance "${wallet_owner}" --url "${SOLANA_RPC_URL}" --output json-compact)"; then
+  echo "error: failed to read SOL balance from ${SOLANA_RPC_URL}" >&2
+  exit 1
+fi
+sol_lamports="$(node -e '
+const fs = require("node:fs");
+const payload = JSON.parse(fs.readFileSync(0, "utf8"));
+process.stdout.write(String(payload.lamports ?? 0));
+' <<< "${sol_json}")"
+sol_balance="$(node -e '
+const lamports = BigInt(process.argv[1]);
+const whole = lamports / 1000000000n;
+const frac = (lamports % 1000000000n).toString().padStart(9, "0").replace(/0+$/, "");
+process.stdout.write(`${whole}${frac ? "." + frac : ""}`);
+' "${sol_lamports}")"
+echo "SOL: ${sol_balance} SOL (${sol_lamports} lamports)"
+
+if ! node -e '
+const lamports = BigInt(process.argv[1]);
+const minSol = Number(process.argv[2]);
+const minLamports = BigInt(Math.ceil(minSol * 1_000_000_000));
+process.exit(lamports >= minLamports ? 0 : 1);
+' "${sol_lamports}" "${MIN_SOL_FEE_BALANCE}"; then
+  echo "error: wallet needs at least ${MIN_SOL_FEE_BALANCE} SOL for transaction fees" >&2
+  exit 1
+fi
+
+if ! usdc_json="$(spl-token balance "${USDC_MINT}" --owner "${wallet_owner}" --url "${SOLANA_RPC_URL}" --output json-compact)"; then
+  echo "error: failed to read USDC balance for ${wallet_owner}; fund the wallet or create the associated USDC token account" >&2
+  exit 1
+fi
+usdc_balance="$(node -e '
+const fs = require("node:fs");
+const payload = JSON.parse(fs.readFileSync(0, "utf8"));
+process.stdout.write(payload.uiAmountString ?? String(payload.uiAmount ?? 0));
+' <<< "${usdc_json}")"
+echo "USDC: ${usdc_balance} USDC"
+
+if ! node -e '
+const current = Number(process.argv[1]);
+const min = Number(process.argv[2]);
+process.exit(Number.isFinite(current) && current > min ? 0 : 1);
+' "${usdc_balance}" "${MIN_USDC_BALANCE}"; then
+  echo "error: wallet needs more than ${MIN_USDC_BALANCE} USDC for the paid request" >&2
   exit 1
 fi
 

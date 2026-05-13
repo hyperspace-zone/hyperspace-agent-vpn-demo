@@ -47,9 +47,10 @@ npm run check-env
 Explain:
 
 > The public staging endpoint is live. The agent can list available gates and
-> sees Stavanger and London as active route choices. The environment also shows
-> the stable source egress IP and the configured target IP for the IP-to-IP VPN
-> config.
+> sees Stavanger and London as active route choices. The environment also prints
+> the wallet address, a Solscan link, SOL available for transaction fees, USDC
+> available for the paid request, the stable source egress IP, and the configured
+> target IP for the IP-to-IP VPN config.
 
 ### 0:45 to 1:05
 
