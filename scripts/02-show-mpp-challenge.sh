@@ -10,12 +10,31 @@ load_env_file ".env"
 : "${HYPERSPACE_API_INSECURE_TLS:=true}"
 : "${HYPERSPACE_INGRESS_GATE_ID:=gate-eu-svg-01}"
 : "${HYPERSPACE_EGRESS_GATE_ID:=gate-eu-lon-01}"
+: "${HYPERSPACE_SOURCE_IP:=}"
+: "${HYPERSPACE_TARGET_IP:=}"
 : "${DEMO_CONFIG_NAME:=hyperspace-svg-london-agent-demo}"
 : "${PREPAID_DURATION_MINUTES:=30}"
 : "${PREPAID_BANDWIDTH_GB:=0.1}"
-: "${ALLOW_ANY_SOURCE:=true}"
 : "${PAY_YOLO_UPTO:=0.000001 USDC}"
 : "${SHOW_RAW_CHALLENGE_BODY:=false}"
+
+is_ipv4() {
+  local value="$1"
+  [[ "${value}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
+  local IFS=.
+  local -a parts
+  read -r -a parts <<< "${value}"
+  local part num
+  for part in "${parts[@]}"; do
+    num=$((10#$part))
+    (( num >= 0 && num <= 255 )) || return 1
+  done
+}
+
+if ! is_ipv4 "${HYPERSPACE_SOURCE_IP}" || ! is_ipv4 "${HYPERSPACE_TARGET_IP}"; then
+  echo "HYPERSPACE_SOURCE_IP and HYPERSPACE_TARGET_IP must be valid IPv4 addresses in .env before showing the paid challenge." >&2
+  exit 1
+fi
 
 url="${HYPERSPACE_PAY_BASE%/}/v1/agent/wireguard/configs"
 headers_file="$(mktemp)"
@@ -26,12 +45,14 @@ request_body="$(
   node -e '
 const env = process.env;
 process.stdout.write(JSON.stringify({
+  mode: "ip_to_ip",
   name: env.DEMO_CONFIG_NAME,
+  source_ip: env.HYPERSPACE_SOURCE_IP,
+  target_ip: env.HYPERSPACE_TARGET_IP,
   ingress_gate_id: env.HYPERSPACE_INGRESS_GATE_ID,
   egress_gate_id: env.HYPERSPACE_EGRESS_GATE_ID,
   duration_minutes: Number(env.PREPAID_DURATION_MINUTES || 30),
   bandwidth_gb: Number(env.PREPAID_BANDWIDTH_GB || 0.1),
-  allow_any_source: String(env.ALLOW_ANY_SOURCE || "true") === "true",
 }));
 '
 )"
@@ -45,6 +66,8 @@ status="$(curl "${curl_args[@]}" -X POST "$url" -H "content-type: application/js
 
 echo "== Raw MPP / HTTP 402 challenge =="
 echo "POST ${url}"
+echo "source ip: ${HYPERSPACE_SOURCE_IP}"
+echo "target ip: ${HYPERSPACE_TARGET_IP}"
 echo "status: ${status}"
 echo
 echo "payment headers:"

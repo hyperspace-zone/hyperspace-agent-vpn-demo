@@ -12,13 +12,31 @@ load_env_file ".env"
 : "${PAY_NETWORK:=mainnet}"
 : "${PAY_ACCOUNT:=hyperspace-agent-demo}"
 : "${SOLANA_KEYPAIR_PATH:=}"
+: "${HYPERSPACE_SOURCE_IP:=}"
+: "${HYPERSPACE_TARGET_IP:=}"
+: "${JITTER_TARGET_HOST:=${HYPERSPACE_TARGET_IP}}"
 
 echo "== Hyperspace agent demo environment =="
 echo "pay base: ${HYPERSPACE_PAY_BASE}"
 echo "pay account: ${PAY_ACCOUNT}"
 echo "wallet path configured: $([[ -n "${SOLANA_KEYPAIR_PATH}" ]] && echo yes || echo no)"
+echo "source ip: ${HYPERSPACE_SOURCE_IP:-<not set>}"
+echo "target ip: ${HYPERSPACE_TARGET_IP:-<not set>}"
 
 errors=0
+
+is_ipv4() {
+  local value="$1"
+  [[ "${value}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
+  local IFS=.
+  local -a parts
+  read -r -a parts <<< "${value}"
+  local part num
+  for part in "${parts[@]}"; do
+    num=$((10#$part))
+    (( num >= 0 && num <= 255 )) || return 1
+  done
+}
 
 for cmd in node curl bash; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -67,8 +85,22 @@ else
   fi
 fi
 
+if ! is_ipv4 "${HYPERSPACE_SOURCE_IP}"; then
+  echo "error: HYPERSPACE_SOURCE_IP must be set to this server's stable public egress IPv4 address" >&2
+  errors=1
+fi
+
+if ! is_ipv4 "${HYPERSPACE_TARGET_IP}"; then
+  echo "error: HYPERSPACE_TARGET_IP must be set to the destination IPv4 address for the paid IP-to-IP config" >&2
+  errors=1
+fi
+
+if [[ -n "${HYPERSPACE_TARGET_IP}" && "${JITTER_TARGET_HOST}" != "${HYPERSPACE_TARGET_IP}" ]]; then
+  echo "warning: JITTER_TARGET_HOST (${JITTER_TARGET_HOST}) differs from HYPERSPACE_TARGET_IP (${HYPERSPACE_TARGET_IP})" >&2
+fi
+
 if [[ "${errors}" -ne 0 ]]; then
-  echo "Fix the environment errors above before running the paid VPN steps." >&2
+  echo "Fix the environment errors above before running the paid IP-to-IP steps." >&2
   exit 1
 fi
 

@@ -8,7 +8,6 @@ load_env_file ".env"
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
 : "${WG_CONNECT_CONFIG_PATH:=runtime/hsvgdemo.conf}"
-: "${WG_STRIP_DNS:=true}"
 
 safe_connect_config_path() {
   local requested="$1"

@@ -40,10 +40,35 @@ export function ensureRuntimeDir() {
   return dir;
 }
 
+export function writeFileWithTimestampCopy(filePath, data, options) {
+  const dir = path.dirname(filePath);
+  if (dir && dir !== ".") {
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  }
+
+  fs.writeFileSync(filePath, data, options);
+
+  const archivePath = timestampedSiblingPath(filePath);
+  fs.writeFileSync(archivePath, data, options);
+  return archivePath;
+}
+
 export function redactWireGuardConfig(config) {
   return String(config || "")
     .replace(/PrivateKey\s*=\s*.*/gi, "PrivateKey = <redacted>")
     .replace(/PresharedKey\s*=\s*.*/gi, "PresharedKey = <redacted>");
+}
+
+function timestampedSiblingPath(filePath, date = new Date()) {
+  const parsed = path.parse(filePath);
+  const stamp = date.toISOString().replace(/\.\d{3}Z$/, "Z").replace(/[-:]/g, "");
+  let candidate = path.join(parsed.dir, `${parsed.name}-${stamp}${parsed.ext}`);
+  let counter = 2;
+  while (fs.existsSync(candidate)) {
+    candidate = path.join(parsed.dir, `${parsed.name}-${stamp}-${counter}${parsed.ext}`);
+    counter += 1;
+  }
+  return candidate;
 }
 
 function unquote(value) {

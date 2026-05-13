@@ -8,11 +8,12 @@ load_env_file ".env"
 
 : "${WG_CONFIG_PATH:=runtime/hyperspace-demo.conf}"
 : "${WG_CONNECT_CONFIG_PATH:=runtime/hsvgdemo.conf}"
-: "${WG_STRIP_DNS:=true}"
-: "${WG_ALLOWED_IPS_MODE:=diagnostic-target}"
+: "${WG_STRIP_DNS:=false}"
+: "${WG_ALLOWED_IPS_MODE:=issued}"
 : "${WG_ALLOWED_IPS:=}"
 : "${WG_ALLOW_FULL_TUNNEL_ON_SSH:=false}"
-: "${JITTER_TARGET_HOST:=lg01-ld4.primexm.com}"
+: "${HYPERSPACE_TARGET_IP:=}"
+: "${JITTER_TARGET_HOST:=${HYPERSPACE_TARGET_IP:-185.97.160.8}}"
 
 if [[ ! -f "${WG_CONFIG_PATH}" ]]; then
   echo "WireGuard config not found: ${WG_CONFIG_PATH}" >&2
@@ -75,7 +76,7 @@ guard_full_tunnel_over_ssh() {
     if [[ "${WG_ALLOW_FULL_TUNNEL_ON_SSH}" != "true" ]]; then
       echo "Refusing full-tunnel WireGuard over an active SSH session." >&2
       echo "This can break SSH access on headless servers." >&2
-      echo "Default safe mode is WG_ALLOWED_IPS_MODE=diagnostic-target." >&2
+      echo "Default safe mode is WG_ALLOWED_IPS_MODE=issued for IP-to-IP configs." >&2
       echo "If you really need full tunnel, run inside tmux and set WG_ALLOW_FULL_TUNNEL_ON_SSH=true." >&2
       exit 1
     fi
@@ -138,6 +139,11 @@ if [[ "${WG_STRIP_DNS}" == "true" ]]; then
 fi
 
 case "${WG_ALLOWED_IPS_MODE}" in
+  issued)
+    existing_allowed_ips="$(extract_allowed_ips "${connect_config}")"
+    guard_full_tunnel_over_ssh "${existing_allowed_ips}"
+    echo "route scope: as issued by server (${existing_allowed_ips})"
+    ;;
   full)
     allowed_ips="${WG_ALLOWED_IPS:-}"
     if [[ -n "${allowed_ips}" ]]; then
@@ -167,10 +173,13 @@ case "${WG_ALLOWED_IPS_MODE}" in
     ;;
   *)
     echo "Unsupported WG_ALLOWED_IPS_MODE: ${WG_ALLOWED_IPS_MODE}" >&2
-    echo "Use diagnostic-target, custom, or full." >&2
+    echo "Use issued, diagnostic-target, custom, or full." >&2
     exit 1
     ;;
 esac
+
+connect_archive="$(archive_timestamped_copy "${connect_config}")"
+echo "timestamped connect config saved: ${connect_archive}"
 
 wg-quick up "${connect_config}"
 

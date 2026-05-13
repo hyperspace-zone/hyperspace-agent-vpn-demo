@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import { loadEnv, envString } from "./lib/env.mjs";
+import { loadEnv, envString, writeFileWithTimestampCopy } from "./lib/env.mjs";
 import { payCurlJson } from "./lib/pay.mjs";
 
 loadEnv();
@@ -29,10 +29,13 @@ const updated = {
   revokedAt: new Date().toISOString(),
   revokeResponse: response.config || response,
 };
-fs.writeFileSync(sessionPath, `${JSON.stringify(updated, null, 2)}\n`, { mode: 0o600 });
+const sessionArchivePath = writeFileWithTimestampCopy(sessionPath, `${JSON.stringify(updated, null, 2)}\n`, {
+  mode: 0o600,
+});
 
 console.log("revocation requested");
 console.log(`session metadata updated: ${sessionPath}`);
+console.log(`timestamped session metadata saved: ${sessionArchivePath}`);
 
 function selectApiBase() {
   return envString("HYPERSPACE_PAY_BASE", "https://app.dev.hyperspace.zone/pay").replace(/\/+$/, "");

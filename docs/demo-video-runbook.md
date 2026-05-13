@@ -19,10 +19,11 @@ Suggested panes:
 Show the README and explain:
 
 > This is an agent-facing demo. The agent receives a repository and a Solana
-> wallet file, requests a prepaid Hyperspace VPN route, receives a WireGuard
-> config, connects through Stavanger to London, measures jitter, then revokes
-> the session. Hyperspace will become discoverable through pay.sh; today we use
-> the underlying MPP / HTTP 402 payment primitive directly.
+> wallet file, requests a prepaid Hyperspace IP-to-IP route to the configured
+> target IP, receives a destination-restricted WireGuard config, connects
+> through Stavanger to London, measures jitter, then revokes the session.
+> Hyperspace will become discoverable through pay.sh; today we use the
+> underlying MPP / HTTP 402 payment primitive directly.
 
 Run:
 
@@ -46,7 +47,9 @@ npm run check-env
 Explain:
 
 > The public staging endpoint is live. The agent can list available gates and
-> sees Stavanger and London as active route choices.
+> sees Stavanger and London as active route choices. The environment also shows
+> the stable source egress IP and the configured target IP for the IP-to-IP
+> config.
 
 ### 0:45 to 1:05
 
@@ -75,8 +78,9 @@ npm run baseline
 Explain:
 
 > Before buying connectivity, the agent measures direct TCP connect latency and
-> jitter to a public looking-glass target. This keeps the demo focused on
-> network behavior without probing sensitive production endpoints.
+> jitter to the same target IP that will be placed in the paid WireGuard config.
+> This keeps the demo focused on network behavior without probing sensitive
+> production endpoints.
 
 ### 1:25 to 1:50
 
@@ -88,10 +92,11 @@ npm run buy-vpn
 
 Explain:
 
-> The agent now requests a prepaid route from Stavanger ingress to London egress.
+> The agent now requests a prepaid IP-to-IP route from the stable source egress
+> IP to the configured target IP, through Stavanger ingress and London egress.
 > The pay CLI handles the MPP / HTTP 402 challenge, pays from the demo wallet,
-> and the live Hyperspace API returns a standard WireGuard config. The private
-> key is saved locally and never printed.
+> and the live Hyperspace API returns a WireGuard config whose AllowedIPs is the
+> target /32. The private key is saved locally and never printed.
 
 ### 1:50 to 2:20
 
@@ -105,9 +110,8 @@ npm run vpn-measure
 Explain:
 
 > The agent connects the tunnel and repeats the same jitter measurement over the
-> Hyperspace route. For a headless SSH demo host, the script uses the safe
-> diagnostic-target route by default: only the configured timing target is sent
-> through WireGuard, while SSH stays on the original route.
+> Hyperspace route. Because the config is IP-to-IP, only the configured target
+> IP is sent through WireGuard, while SSH stays on the original route.
 
 ### 2:20 to 2:45
 

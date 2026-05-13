@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/env.sh"
 load_env_file ".env"
 
-: "${HTTP_TIMING_URL:=https://lg01-ld4.primexm.com/}"
+: "${HTTP_TIMING_URL:=https://185.97.160.8/}"
 : "${HTTP_TIMING_INSECURE_TLS:=true}"
 : "${JITTER_SAMPLES:=10}"
 

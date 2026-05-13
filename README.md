@@ -1,9 +1,9 @@
 # Hyperspace Agent VPN Demo
 
 This repository is a live-product demo for an autonomous agent that requests a
-prepaid Hyperspace WireGuard route, connects through a Stavanger ingress and
-London egress, and compares network latency and jitter before and after the VPN
-session.
+prepaid Hyperspace IP-to-IP WireGuard route, connects through a Stavanger
+ingress and London egress, and compares network latency and jitter before and
+after the paid session.
 
 The demo is intentionally agent-facing: give an agent this repository, a Solana
 wallet path outside the repo, and the task in `AGENTS.md`. The agent can then
@@ -17,7 +17,8 @@ disconnect, and revoke the session.
 - The public endpoint exposes a real MPP / HTTP 402 payment challenge.
 - Hyperspace is not yet listed in the public pay.sh catalog, so the demo calls
   the live MPP / HTTP 402 gateway URL directly.
-- Hyperspace returns a standard WireGuard config after authorization.
+- Hyperspace returns a destination-restricted WireGuard config after
+  authorization.
 - The session is prepaid and can be revoked when the task is complete.
 - Latency and jitter can be compared before and after the tunnel.
 
@@ -36,11 +37,14 @@ Stavanger ingress: gate-eu-svg-01 / 212.147.234.64
 London egress:     gate-eu-lon-01 / 94.237.56.185
 ```
 
-The default public diagnostic target is `lg01-ld4.primexm.com:443`, a public
-looking-glass host suitable for basic network timing checks.
+The default test scenario is a TCP timing check from the demo server to
+`185.97.160.8:443`, the current IPv4 address used for
+`lg01-ld4.primexm.com`. The paid WireGuard config is issued specifically for
+that target IP (`AllowedIPs = 185.97.160.8/32`) through the Stavanger to London
+route.
 
-For clean network jitter measurement, set `JITTER_TARGET_HOST` to a controlled
-probe if you have one.
+For clean network jitter measurement, set `HYPERSPACE_TARGET_IP` and
+`JITTER_TARGET_HOST` to a controlled probe IP if you have one.
 
 `HTTP_TIMING_INSECURE_TLS=true` is enabled by default for timing-only requests
 against looking-glass targets that may not provide a complete public certificate
@@ -59,6 +63,11 @@ The wallet must already contain:
 
 USDC alone is not enough because the payment transaction still needs SOL fees.
 Keep the wallet file outside this repository.
+
+The server running the demo also needs a stable internet egress IPv4 address.
+It does not have to be assigned directly to the server as a public interface
+address; a stable NAT gateway egress address is fine. It must not change during
+the test, because the IP-to-IP config is issued for that source address.
 
 ### 1. Install Base Packages
 
@@ -135,10 +144,21 @@ sed -i "s|^SOLANA_KEYPAIR_PATH=.*|SOLANA_KEYPAIR_PATH=$HYPERSPACE_WALLET|" .env
 
 ### 6. Configure `.env`
 
-Verify that `.env` points to the wallet and keeps the payment defaults:
+Set the source and target IPs. The source IP must be this server's stable
+internet egress address; the target IP is the destination allowed by the paid
+WireGuard config.
 
 ```bash
-grep -E '^(SOLANA_KEYPAIR_PATH|PAY_ACCOUNT|PAY_YOLO_UPTO)=' .env
+SOURCE_IP="$(curl -fsS https://api.ipify.org)"
+sed -i "s|^HYPERSPACE_SOURCE_IP=.*|HYPERSPACE_SOURCE_IP=$SOURCE_IP|" .env
+sed -i "s|^HYPERSPACE_TARGET_IP=.*|HYPERSPACE_TARGET_IP=185.97.160.8|" .env
+sed -i "s|^JITTER_TARGET_HOST=.*|JITTER_TARGET_HOST=185.97.160.8|" .env
+```
+
+Verify that `.env` points to the wallet and the intended IP-to-IP test:
+
+```bash
+grep -E '^(SOLANA_KEYPAIR_PATH|PAY_ACCOUNT|PAY_YOLO_UPTO|HYPERSPACE_SOURCE_IP|HYPERSPACE_TARGET_IP|JITTER_TARGET_HOST)=' .env
 ```
 
 Expected values:
@@ -147,7 +167,13 @@ Expected values:
 SOLANA_KEYPAIR_PATH=/home/<user>/.config/hyperspace/id.json
 PAY_ACCOUNT=hyperspace-agent-demo
 PAY_YOLO_UPTO="0.000001 USDC"
+HYPERSPACE_SOURCE_IP=<stable server egress IPv4>
+HYPERSPACE_TARGET_IP=185.97.160.8
+JITTER_TARGET_HOST=185.97.160.8
 ```
+
+At `npm run buy-vpn`, the paid WireGuard config will be issued for
+`HYPERSPACE_SOURCE_IP -> HYPERSPACE_TARGET_IP` only.
 
 ### 7. Run The Demo
 
@@ -179,6 +205,7 @@ the screen stays readable.
 - `sudo` rights for `wg-quick up/down`
 - pay.sh compatible CLI installed locally with `npm install @solana/pay`
 - a funded Solana mainnet-beta wallet with USDC and SOL
+- a server with a stable internet egress IPv4 address for `HYPERSPACE_SOURCE_IP`
 - optional Solana CLI if you need to generate a new wallet on the server
 - optional SPL Token CLI if you need exact USDC balance checks on the server
 
@@ -190,19 +217,23 @@ Before spending, `npm run buy-vpn` preflights the HTTP 402 challenge and refuses
 to continue if the gateway asks for a different network or any `price_usd` above
 `PAY_YOLO_UPTO`.
 
-The default `WG_STRIP_DNS=true` avoids `wg-quick` failures on minimal Ubuntu
-hosts where `openresolv` is unavailable.
+The paid config uses the platform's IP-to-IP mechanism. The issued
+`AllowedIPs` is the configured `HYPERSPACE_TARGET_IP/32`, and the config does
+not include DNS lines. `WG_ALLOWED_IPS_MODE=issued` keeps the route exactly as
+issued by the API.
 
-For remote SSH safety, the demo does not install the issued full-tunnel route by
-default. `WG_ALLOWED_IPS_MODE=diagnostic-target` rewrites `AllowedIPs` to the
-resolved `JITTER_TARGET_HOST` IPv4 `/32`, so SSH stays on the original server
-route while the diagnostic target is measured through Hyperspace. Full-tunnel
-mode over an active SSH session is refused unless
-`WG_ALLOW_FULL_TUNNEL_ON_SSH=true` is set explicitly.
+The demo overwrites the canonical runtime files on each run, but also writes
+timestamped sibling copies such as `runtime/baseline-20260513T120000Z.json`,
+`runtime/vpn-20260513T120000Z.json`,
+`runtime/session-20260513T120000Z.json`, and
+`runtime/hyperspace-demo-20260513T120000Z.conf`.
 
-`WG_CONNECT_CONFIG_PATH` defaults to `runtime/hsvgdemo.conf` because `wg-quick`
-derives the interface name from the config basename, and Linux interface names
-must fit within 15 characters.
+Two WireGuard config files are intentional. `WG_CONFIG_PATH` defaults to
+`runtime/hyperspace-demo.conf` and stores the config exactly as issued by the
+paid API. `WG_CONNECT_CONFIG_PATH` defaults to `runtime/hsvgdemo.conf` and is
+the working copy passed to `wg-quick`; the connect script can still override
+`AllowedIPs` for debugging if configured to do so. The shorter basename also
+keeps the derived Linux interface name within the 15-character limit.
 
 The wallet must live outside this repository. Never commit wallet files,
 recovery phrases, WireGuard configs, or raw payment credentials.
@@ -245,7 +276,7 @@ Run only TCP jitter measurement:
 ```bash
 node scripts/measure-tcp-jitter.mjs \
   --label baseline \
-  --host lg01-ld4.primexm.com \
+  --host 185.97.160.8 \
   --port 443 \
   --samples 30 \
   --out runtime/baseline.json

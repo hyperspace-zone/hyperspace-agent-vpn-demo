@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import net from "node:net";
-import fs from "node:fs";
 import process from "node:process";
-import { loadEnv, envNumber, envString, ensureRuntimeDir } from "./lib/env.mjs";
+import { loadEnv, envNumber, envString, ensureRuntimeDir, writeFileWithTimestampCopy } from "./lib/env.mjs";
 
 loadEnv();
 ensureRuntimeDir();
 
 const args = parseArgs(process.argv.slice(2));
 const label = args.label || "measurement";
-const host = args.host || envString("JITTER_TARGET_HOST", "lg01-ld4.primexm.com");
+const host = args.host || envString("JITTER_TARGET_HOST", envString("HYPERSPACE_TARGET_IP", "185.97.160.8"));
 const port = Number(args.port || envString("JITTER_TARGET_PORT", "443"));
 const samples = Number(args.samples || envNumber("JITTER_SAMPLES", 30));
 const timeoutMs = Number(args.timeoutMs || envNumber("JITTER_TIMEOUT_MS", 3000));
@@ -38,8 +37,9 @@ console.log();
 printReport(report);
 
 if (out) {
-  fs.writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`);
+  const archivePath = writeFileWithTimestampCopy(out, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`report saved: ${out}`);
+  console.log(`timestamped report saved: ${archivePath}`);
 }
 
 function tcpConnectSample(targetHost, targetPort, timeout) {
